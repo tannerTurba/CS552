@@ -1,0 +1,152 @@
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Minneapolis --no-reached -s a-star
+Route found: La Crosse -> Winona -> Minneapolis
+Distance: 137.2
+
+Total nodes generated      : 449
+Nodes remaining on frontier: 444
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "New York" --no-reached -s a-star
+Route found: La Crosse -> Milwaukee -> New York
+Distance: 1030.2
+
+Total nodes generated      : 57282
+Nodes remaining on frontier: 56773
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "Mexico City" --no-reached -s a-star
+Route found: La Crosse -> La Crescent -> Dallas -> Austin -> Reynosa -> Chimalhuacan -> Mexico City
+Distance: 1899.8
+
+Total nodes generated      : 213807
+Nodes remaining on frontier: 211902
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "New York" -g London --no-reached -s a-star
+Route found: New York -> Boston -> Glasgow -> Birmingham -> London
+Distance: 4571.2
+
+Total nodes generated      : 10764322
+Nodes remaining on frontier: 10681593
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Minneapolis -s a-star
+Route found: La Crosse -> Winona -> Minneapolis
+Distance: 137.2
+
+Total nodes generated      : 204
+Nodes remaining on frontier: 200
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "New York" -s a-star
+Route found: La Crosse -> Milwaukee -> New York
+Distance: 1030.2
+
+Total nodes generated      : 250
+Nodes remaining on frontier: 239
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "Mexico City" -s a-star
+Route found: La Crosse -> La Crescent -> Dallas -> Austin -> Reynosa -> Chimalhuacan -> Mexico City
+Distance: 1899.8
+
+Total nodes generated      : 320
+Nodes remaining on frontier: 305
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "New York" -g London -s a-star
+Route found: New York -> Boston -> Glasgow -> Birmingham -> London
+Distance: 4571.2
+
+Total nodes generated      : 594
+Nodes remaining on frontier: 575
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g London -s a-star
+Route found: La Crosse -> Ottawa -> Montreal -> Dublin -> Birmingham -> London
+Distance: 5363.9
+
+Total nodes generated      : 684
+Nodes remaining on frontier: 628
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Paris -s a-star
+Route found: La Crosse -> Ottawa -> Montreal -> Dublin -> Paris
+Distance: 5576.8
+
+Total nodes generated      : 685
+Nodes remaining on frontier: 629
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "Barcelona (Venezuela)" -s a-star
+Route found: La Crosse -> Chicago -> Jacksonville -> Santiago (Dominican Republic) -> Santo Domingo -> Barcelona (Venezuela)
+Distance: 3212.8
+
+Total nodes generated      : 444
+Nodes remaining on frontier: 401
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Vancouver -s a-star
+Route found: La Crosse -> Winona -> Minneapolis -> Vancouver
+Distance: 1790.4
+
+Total nodes generated      : 198
+Nodes remaining on frontier: 188
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g "Sao Paulo" -s a-star
+Route found: La Crosse -> Chicago -> Jacksonville -> Santiago (Dominican Republic) -> Santo Domingo -> Barcelona (Venezuela) -> Manaus -> Ribeirao Preto -> Sao Paulo
+Distance: 6240.7
+
+Total nodes generated      : 873
+Nodes remaining on frontier: 694
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Peking -s a-star
+Route found: La Crosse -> Ottawa -> Montreal -> Glasgow -> Oslo -> Stockholm -> Helsinki -> Perm -> Tyumen -> Omsk -> Novosibirsk -> Ulaanbaatar -> Zhangjiakou -> Peking
+Distance: 10770.0
+
+Total nodes generated      : 3335
+Nodes remaining on frontier: 2848
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Singapore -s a-star
+Route found: La Crosse -> Ottawa -> Montreal -> Glasgow -> Oslo -> Moscow -> Tolyatti -> Orenburg -> Dushanbe -> Islamabad -> Chandigarh -> Gorakhpur -> Patna -> Durgapur -> Calcutta -> Rangoon -> Singapore
+Distance: 12803.8
+
+Total nodes generated      : 4987
+Nodes remaining on frontier: 3459
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -i "La Crosse" -g Wuhan -s a-star
+Route found: La Crosse -> Ottawa -> Montreal -> Glasgow -> Oslo -> Stockholm -> Helsinki -> Perm -> Tyumen -> Omsk -> Novosibirsk -> Novokuznetsk -> Baotou -> Changzhi -> Wuhan
+Distance: 11383.1
+
+Total nodes generated      : 3967
+Nodes remaining on frontier: 3337
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -g "La Crosse" -i Peking -s a-star
+Route found: Peking -> Zhangjiakou -> Ulaanbaatar -> Novosibirsk -> Omsk -> Tyumen -> Perm -> Helsinki -> Stockholm -> Oslo -> Glasgow -> Montreal -> Ottawa -> La Crosse
+Distance: 10770.0
+
+Total nodes generated      : 4711
+Nodes remaining on frontier: 2612
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -g "La Crosse" -i Singapore -s a-star
+Route found: Singapore -> Rangoon -> Calcutta -> Durgapur -> Patna -> Gorakhpur -> Chandigarh -> Islamabad -> Dushanbe -> Orenburg -> Tolyatti -> Moscow -> Oslo -> Glasgow -> Montreal -> Ottawa -> La Crosse
+Distance: 12803.8
+
+Total nodes generated      : 6392
+Nodes remaining on frontier: 1661
+
+===============================================================================
+shell$ java Search -f ../a01-data/cities02.csv -g "La Crosse" -i Wuhan -s a-star
+Route found: Wuhan -> Changzhi -> Baotou -> Novokuznetsk -> Novosibirsk -> Omsk -> Tyumen -> Perm -> Helsinki -> Stockholm -> Oslo -> Glasgow -> Montreal -> Ottawa -> La Crosse
+Distance: 11383.1
+
+Total nodes generated      : 4944
+Nodes remaining on frontier: 2218
+
