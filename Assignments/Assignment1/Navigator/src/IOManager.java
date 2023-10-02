@@ -14,11 +14,11 @@ public class IOManager {
         this.outputFile = outputFile;
     }
     
-    public Map<String, CityNode> parseInput() {
+    public CityMap parseInput() {
         boolean mapIsCompleted = false;
         boolean isFirstLine = true;
         Scanner inputReader;
-        Map<String, CityNode> map = new Hashtable<>();
+        CityMap map = new CityMap();
 
         try {
             inputReader = new Scanner(inputFile);

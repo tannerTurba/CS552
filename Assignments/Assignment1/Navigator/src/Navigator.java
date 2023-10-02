@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.Map;
 
 public class Navigator {
     private String fileName;
@@ -18,10 +17,16 @@ public class Navigator {
     public Navigator(String[] args) {
         parseArgs(args);
         IOManager ioManager = new IOManager(new File(fileName));
-        Map<String, CityNode> map = ioManager.parseInput();
+        CityMap map = ioManager.parseInput();
 
-        System.out.println(this);
-        System.out.println(map);
+        // System.out.println(this);
+        // System.out.println(map);
+
+        // map.expand("La Crosse");
+        // map.expand("La Crescent");
+
+        String solution = map.uniformCostSearch("La Crosse", "Minneapolis");
+        System.out.println(solution);
     }
 
     public String toString() {
