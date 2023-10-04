@@ -3,9 +3,9 @@ import java.io.File;
 public class Navigator {
     private String fileName;
     private String initialCity;
-    private String destinationCity;
-    private Strategy searchStrategy;
-    private Heuristic hFunction;
+    private static String destinationCity;
+    private static Strategy searchStrategy = Strategy.A_STAR;
+    private static Heuristic hFunction = Heuristic.HAVERSINE;
     private boolean reachedIsUsed = true;
     private int verbosity = 0;
 
@@ -22,11 +22,8 @@ public class Navigator {
         // System.out.println(this);
         // System.out.println(map);
 
-        // map.expand("La Crosse");
-        // map.expand("La Crescent");
-
-        String solution = map.uniformCostSearch("La Crosse", "Minneapolis");
-        System.out.println(solution);
+        CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
+        ioManager.level2(solution);
     }
 
     public String toString() {
@@ -49,20 +46,31 @@ public class Navigator {
             else if(args[i].equals("-i")) {
                 i++;
                 initialCity = args[i].replace('\"', '\"');
+                Stats.setStartState(initialCity);
             }
             else if(args[i].equals("-g")) {
                 i++;
                 destinationCity = args[i].replace('\"', '\"');
+                Stats.setEndState(destinationCity);
             }
             else if(args[i].equals("-s")) {
                 i++;
-                switch(args[i].toLowerCase()) {
-                    case "greedy": searchStrategy = Strategy.GREEDY; break;
-                    case "uniform": searchStrategy = Strategy.UNIFORM; break;
-                    case "breadth": searchStrategy = Strategy.BREADTH; break;
-                    case "depth": searchStrategy = Strategy.DEPTH; break;
-                    default : searchStrategy = Strategy.A_STAR; break;
+                if (args[i].toLowerCase().equals("greedy")) {
+                    searchStrategy = Strategy.GREEDY;
                 }
+                else if (args[i].toLowerCase().equals("uniform")) {
+                    searchStrategy = Strategy.UNIFORM;
+                }
+                else if (args[i].toLowerCase().equals("breadth")) {
+                    searchStrategy = Strategy.BREADTH;
+                }
+                else if (args[i].toLowerCase().equals("depth")) {
+                    searchStrategy = Strategy.DEPTH;
+                }
+                else {
+                    searchStrategy = Strategy.A_STAR;
+                }
+                Stats.setSearchStrategy(searchStrategy);
             }
             else if(args[i].equals("-h")) {
                 i++;
@@ -79,5 +87,17 @@ public class Navigator {
                 verbosity = Integer.parseInt(args[i]);
             }
         }
+    }
+
+    public static Strategy getStrategy() {
+        return searchStrategy;
+    }
+
+    public static Heuristic getHeuristic() {
+        return hFunction;
+    }
+
+    public static String getGoal() {
+        return destinationCity;
     }
 }

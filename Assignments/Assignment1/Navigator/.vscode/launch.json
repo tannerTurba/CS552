@@ -17,6 +17,7 @@
             "mainClass": "Navigator",
             "projectName": "Navigator_9d010a0d",
             "args": "-f a01-data/cities01.csv -i \"La Crosse\" -g Minneapolis"
+            // "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Sydney -s greedy"
         }
     ]
 }
