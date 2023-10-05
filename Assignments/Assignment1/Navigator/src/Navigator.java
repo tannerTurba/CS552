@@ -1,13 +1,14 @@
 import java.io.File;
 
 public class Navigator {
-    private String fileName;
+    private File file;
     private String initialCity;
     private static String destinationCity;
     private static Strategy searchStrategy = Strategy.A_STAR;
     private static Heuristic hFunction = Heuristic.HAVERSINE;
     private boolean reachedIsUsed = true;
     private int verbosity = 0;
+    private CityMap map;
 
     public static void main(String[] args) {
         System.out.println();
@@ -16,18 +17,17 @@ public class Navigator {
 
     public Navigator(String[] args) {
         parseArgs(args);
-        IOManager ioManager = new IOManager(new File(fileName));
-        CityMap map = ioManager.parseInput();
+        map = new CityMap(file, destinationCity);
 
         // System.out.println(this);
         // System.out.println(map);
 
         CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
-        ioManager.level2(solution);
+        level2(solution);
     }
 
     public String toString() {
-        String strToPrint = "FileName: " + fileName + "\n";
+        String strToPrint = "FileName: " + file.getName() + "\n";
         strToPrint += "InitialCity: " + initialCity + "\n";
         strToPrint += "DestinationCity: " + destinationCity + "\n";
         strToPrint += "SearchStrategy: " + searchStrategy + "\n";
@@ -41,7 +41,7 @@ public class Navigator {
         for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-f")) {
                 i++;
-                fileName = args[i];
+                file = new File(args[i]);
             }
             else if(args[i].equals("-i")) {
                 i++;
@@ -99,5 +99,61 @@ public class Navigator {
 
     public static String getGoal() {
         return destinationCity;
+    }
+
+    public void level0(CityNode solution) {
+        System.out.println(solution.actions);
+        System.out.printf("Distance: %.1f\n\n", solution.pathCost);
+        System.out.println("Total nodes generated      : " + Stats.getNumNodesGenerated());
+        System.out.println("Nodes remaining on frontier: " + Stats.getNodesInFrontier());
+    }
+
+    private String getSearchProblem(CityNode solution) {
+        String val = "* Reading data from [" + file.getName() + "]\n";
+        val += "* Number of cities: " + map.size() + "\n";
+        val += "* Searching for path from " + Stats.getStartState() + " to " + Stats.getEndState() + " using " + Stats.getSearchStrategy() + " Search\n";
+        return val;
+    }
+
+    private String getSearchDetails(CityNode solution) {
+        String val = "";
+        if (!solution.actions.equals("NO PATH")) {
+            val += "* Goal found  : " + nodeSummary(solution);
+        }
+        val += "* Search took " + Stats.getElapsedTime() + "ms\n";
+        return val;
+    }
+
+    private String nodeSummary(CityNode node) {
+        String lastState;
+        if (!node.actions.contains("->")) {
+            lastState = "null";
+        }
+        else {
+            String[] actions = node.actions.split(" -> ");
+            lastState = actions[actions.length-1];
+        }
+        return String.format("%-13s  (p-> %-11s) [f=%6.1f; g=%6.1f; h=%6.1f]\n", node.cityName, lastState, node.getF(), node.getG(), node.getH());
+    }
+
+    public void level1(CityNode solution) {
+        String val = getSearchProblem(solution);
+        val += getSearchDetails(solution);
+        val += nodeSummary(solution);
+        System.out.println(val);
+        level0(solution);
+    }
+
+    public void level2(CityNode solution) {
+        String val = getSearchProblem(solution);
+        CityNode node;
+        while (!Stats.nodesGenerated.isEmpty()) {
+            node = Stats.nodesGenerated.poll();
+            val += "  Expanding   : " + nodeSummary(node);
+        }
+
+        val += getSearchDetails(solution);
+        System.out.println(val);
+        level0(solution);
     }
 }

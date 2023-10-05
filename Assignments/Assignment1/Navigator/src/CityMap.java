@@ -1,9 +1,147 @@
+import java.io.*;
 import java.util.*;
 
 public class CityMap extends Hashtable<String, CityNode> {
+    private File inputFile;
+    private String goal;
+    public Map<String, double[]> coordinates = new Hashtable<>();
 
-    public CityMap() {
+    public CityMap(File inputFile, String goal) {
         super();
+        this.inputFile = inputFile;
+        this.goal = goal;
+        parseInput();
+        calcHeuristics();
+    }
+
+    private void calcHeuristics() {
+        double g, h;
+        Enumeration<String> cities = keys();
+        CityNode node;
+        while(cities.hasMoreElements()) {
+            String city = cities.nextElement();
+            node = get(city);
+            
+            h = getHeuristic(city);
+            g = node.distances.getOrDefault(goal, 0.0);
+            if(Navigator.getStrategy() == Strategy.GREEDY) {
+                node.setF(h);
+            }
+            else if(Navigator.getStrategy() == Strategy.A_STAR) {
+                node.setF(h + g);
+            }
+            node.setG(g);
+            node.setH(h);
+        }
+    }
+
+    private void parseInput() {
+        boolean mapIsCompleted = false;
+        boolean isFirstLine = true;
+        Scanner inputReader;
+
+        try {
+            inputReader = new Scanner(inputFile);
+            String currentLine;
+            while (inputReader.hasNextLine()) {
+                currentLine = inputReader.nextLine();
+                if (!isComment(currentLine)) {
+                    isFirstLine = false;
+                }
+                if(!mapIsCompleted && !isComment(currentLine)) {
+                    // Read coordinates into CityNode
+                    CityNode city = readCity(currentLine);
+                    put(city.getCityName(), city);
+                }
+                else if(!isFirstLine && !mapIsCompleted && isComment(currentLine)) {
+                    mapIsCompleted = true;
+                }
+                else if(mapIsCompleted && !isComment(currentLine)) {
+                    // Read distance between cities
+                    readDistance(currentLine);
+                }
+            }
+        }
+        catch(FileNotFoundException e) {
+            System.out.println("File not found!");
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isComment(String line) {
+        return line.charAt(0) == '#';
+    }
+
+    private CityNode readCity(String line) {
+        Scanner lineReader = new Scanner(line);
+        lineReader.useDelimiter(",");
+        String name = lineReader.next().trim();
+        double latitude = Double.parseDouble(lineReader.next().trim());
+        double longitude = Double.parseDouble(lineReader.next().trim());
+        lineReader.close();
+        addCoordinates(name, new double[]{latitude, longitude});
+
+        return new CityNode(name);
+    }
+
+    private void readDistance(String line) {
+        Scanner lineReader = new Scanner(line);
+        lineReader.useDelimiter(",");
+        String name1 = lineReader.next().trim();
+        String name2 = lineReader.next().trim();
+        String distance = lineReader.next().trim();
+        lineReader.close();
+        
+        get(name1).addDistance(name2, distance);
+        get(name2).addDistance(name1, distance);
+    }
+
+    public void addCoordinates(String cityName, double[] coordi) {
+        coordinates.put(cityName, coordi);
+    }
+
+    public double getLatitude(String city) {
+        return coordinates.get(city)[0];
+    }
+
+    public double getLongitude(String city) {
+        return coordinates.get(city)[1];
+    }
+
+    private double getHeuristic(String city1) {
+        double[] coor1 = coordinates.get(city1);
+        double[] coor2 = coordinates.get(goal);
+
+        if (Navigator.getHeuristic() == Heuristic.HAVERSINE) {
+            return haversine(coor1, coor2);
+        }
+        else {
+            return euclidean(coor1, coor2);
+        }
+    }
+
+    private double haversine(double[] city1, double[] city2) {
+        double lon1 = Math.toRadians(city1[0]);
+        double lon2 = Math.toRadians(city2[0]);
+        double lat1 = Math.toRadians(city1[1]);
+        double lat2 = Math.toRadians(city2[1]);
+
+        double lon = lon2 - lon1;
+        double lat = lat2 - lat1;
+        double a = Math.pow(Math.sin(lat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(lon / 2), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return 3958.8 * c;
+    }
+
+    private double euclidean(double[] city1, double[] city2) {
+        double lon1 = city1[0];
+        double lon2 = city2[0];
+        double lat1 = city1[1];
+        double lat2 = city2[1];
+
+        double lon = lon2 - lon1;
+        double lat = lat2 - lat1;
+        return Math.sqrt(Math.pow(lon, 2) + Math.pow(lat, 2));
     }
 
     public List<CityNode> expand(CityNode city, String goal) {
