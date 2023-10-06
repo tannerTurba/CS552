@@ -9,6 +9,7 @@ public class Stats {
     private static String endState;
     private static Strategy searchStrategy = Strategy.A_STAR;
     public static Queue<CityNode> nodesGenerated = new LinkedList<>();
+    public static int nodeCount = 0;
 
     public static void setSearchStrategy(Strategy s) {
         searchStrategy = s;
@@ -48,6 +49,7 @@ public class Stats {
 
     public static void addNode(CityNode node) {
         nodesGenerated.add(node);
+        nodeCount++;
     }
 
     public static CityNode getNodeGenerated() {
@@ -55,7 +57,7 @@ public class Stats {
     }
 
     public static int getNumNodesGenerated() {
-        return nodesGenerated.size();
+        return nodeCount;
     }
 
     public static void setNodesInFrontier(int nodes) {

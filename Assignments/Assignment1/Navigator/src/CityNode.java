@@ -6,9 +6,9 @@ public class CityNode implements Comparable<CityNode> {
     public CityNode parent;
     public String actions = "Route found: ";
     public double pathCost = 0.0;
-    private double f = 999.0;
-    private double g = 999.0;
-    private double h = 999.0;
+    private double f = 0.0;
+    private double g = 0.0;
+    private double h = 0.0;
     
     public CityNode(String cityName) {
         this.cityName = cityName;
@@ -70,22 +70,6 @@ public class CityNode implements Comparable<CityNode> {
 
     @Override
     public int compareTo(CityNode city2) {
-        // String goal = Navigator.getGoal();
-        // double f2 = 0.0;
-        // h = getHeuristic(cityName, goal);
-
-        // if(Navigator.getStrategy() == Strategy.GREEDY) {
-        //     f = h;
-        //     f2 = getHeuristic(city2.cityName, goal);
-        // }
-        // else if(Navigator.getStrategy() == Strategy.A_STAR) {
-        //     f = h + pathCost;
-        //     f2 = getHeuristic(city2.cityName, goal) + city2.pathCost;
-        // }
-        // else {
-        //     f2 = city2.pathCost;
-        // }
-
         if(f - city2.getF() > 0) {
             return 1;
         }

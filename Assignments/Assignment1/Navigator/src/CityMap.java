@@ -11,28 +11,27 @@ public class CityMap extends Hashtable<String, CityNode> {
         this.inputFile = inputFile;
         this.goal = goal;
         parseInput();
-        calcHeuristics();
+        
+        // Enumeration<String> cities = keys();
+        // CityNode node;
+        // while(cities.hasMoreElements()) {
+        //     node = get(cities.nextElement());
+        //     calcHeuristics(node);
+        // }
     }
 
-    private void calcHeuristics() {
+    private void calcHeuristics(CityNode currentNode) {
         double g, h;
-        Enumeration<String> cities = keys();
-        CityNode node;
-        while(cities.hasMoreElements()) {
-            String city = cities.nextElement();
-            node = get(city);
-            
-            h = getHeuristic(city);
-            g = node.distances.getOrDefault(goal, 0.0);
-            if(Navigator.getStrategy() == Strategy.GREEDY) {
-                node.setF(h);
-            }
-            else if(Navigator.getStrategy() == Strategy.A_STAR) {
-                node.setF(h + g);
-            }
-            node.setG(g);
-            node.setH(h);
+        h = getHeuristic(currentNode.cityName);
+        g = currentNode.pathCost;//parentNode.distances.getOrDefault(goal, 0.0);
+        if(Navigator.getStrategy() == Strategy.GREEDY) {
+            currentNode.setF(h);
         }
+        else if(Navigator.getStrategy() == Strategy.A_STAR) {
+            currentNode.setF(h + g);
+        }
+        currentNode.setG(g);
+        currentNode.setH(h);
     }
 
     private void parseInput() {
@@ -148,9 +147,10 @@ public class CityMap extends Hashtable<String, CityNode> {
         ArrayList<CityNode> nodesToReturn = new ArrayList<>();
         for (String child : city.distances.keySet()) {
             CityNode childNode = get(child);
-            Double cost =  + city.pathCost + city.distances.get(childNode.cityName);
+            Double cost = city.pathCost + city.distances.get(childNode.cityName);
             String pathActions = city.actions + " -> " + childNode.cityName;
             CityNode newNode = new CityNode(childNode, city, pathActions, cost);
+            calcHeuristics(newNode);
             nodesToReturn.add(newNode);
         }
         return nodesToReturn;
@@ -159,15 +159,16 @@ public class CityMap extends Hashtable<String, CityNode> {
     public CityNode uniformCostSearch(String initialState, String goalState) {
         Stats.startStopwatch();
         CityNode root = get(initialState);
+        calcHeuristics(root);
         PriorityQueue<CityNode> frontier = new PriorityQueue<>();
         Map<String, CityNode> reached = new HashMap<>();
         reached.put(root.cityName, root);
         frontier.add(root);
-        Stats.nodesGenerated.add(root);
 
         CityNode node;
         while (!frontier.isEmpty()) {
             node = frontier.poll();
+            Stats.addNode(node);
             if (node.getCityName().equals(goalState)) {
                 Stats.setNodesInFrontier(frontier.size());
                 Stats.stopStopwatch();
@@ -178,7 +179,6 @@ public class CityMap extends Hashtable<String, CityNode> {
                 if (reached.get(state) == null || child.pathCost < reached.get(state).pathCost) {
                     reached.put(state, child);
                     frontier.add(child);
-                    Stats.nodesGenerated.add(child);
                 }
             }
         }
