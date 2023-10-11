@@ -18,7 +18,7 @@ public class Navigator {
 
     public Navigator(String[] args) {
         parseArgs(args);
-        map = new CityMap(file, destinationCity);
+        map = new CityMap(file, destinationCity, searchStrategy);
 
         CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
 

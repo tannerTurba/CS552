@@ -9,11 +9,13 @@ public class CityMap extends Hashtable<String, CityNode> {
     private int nodesGenerated, nodesInFrontier;
     private long startTime = 0;
     private long stopTime = 0;
+    private Strategy strategy;
 
-    public CityMap(File inputFile, String goal) {
+    public CityMap(File inputFile, String goal, Strategy strategy) {
         super();
         this.inputFile = inputFile;
         this.goal = goal;
+        this.strategy = strategy;
         parseInput();
     }
 
@@ -26,6 +28,9 @@ public class CityMap extends Hashtable<String, CityNode> {
         }
         else if(Navigator.getStrategy() == Strategy.A_STAR) {
             currentNode.setF(h + g);
+        }
+        else {
+            currentNode.setF(currentNode.pathCost);
         }
         currentNode.setG(g);
         currentNode.setH(h);
@@ -108,19 +113,19 @@ public class CityMap extends Hashtable<String, CityNode> {
         double[] coor1 = coordinates.get(city1);
         double[] coor2 = coordinates.get(goal);
 
-        if (Navigator.getHeuristic() == Heuristic.HAVERSINE) {
-            return haversine(coor1, coor2);
+        if (Navigator.getHeuristic() == Heuristic.EUCLIDEAN) {
+            return euclidean(coor1, coor2);
         }
         else {
-            return euclidean(coor1, coor2);
+            return haversine(coor1, coor2);
         }
     }
 
     private double haversine(double[] city1, double[] city2) {
-        double lon1 = Math.toRadians(city1[0]);
-        double lon2 = Math.toRadians(city2[0]);
-        double lat1 = Math.toRadians(city1[1]);
-        double lat2 = Math.toRadians(city2[1]);
+        double lon1 = Math.toRadians(city1[1]);
+        double lon2 = Math.toRadians(city2[1]);
+        double lat1 = Math.toRadians(city1[0]);
+        double lat2 = Math.toRadians(city2[0]);
 
         double lon = lon2 - lon1;
         double lat = lat2 - lat1;
@@ -130,10 +135,10 @@ public class CityMap extends Hashtable<String, CityNode> {
     }
 
     private double euclidean(double[] city1, double[] city2) {
-        double lon1 = city1[0];
-        double lon2 = city2[0];
-        double lat1 = city1[1];
-        double lat2 = city2[1];
+        double lon1 = city1[1];
+        double lon2 = city2[1];
+        double lat1 = city1[0];
+        double lat2 = city2[0];
 
         double lon = lon2 - lon1;
         double lat = lat2 - lat1;
@@ -143,6 +148,7 @@ public class CityMap extends Hashtable<String, CityNode> {
     public ArrayList<CityNode> expand(CityNode city, String goal) {
         // PriorityQueue<CityNode> nodesToReturn = new PriorityQueue<>();
         ArrayList<CityNode> nodesToReturn = new ArrayList<>();
+        Collection<CityNode> toReturn = new PriorityQueue<>();
         for (String child : city.distances.keySet()) {
             CityNode childNode = get(child);
             Double cost = city.pathCost + city.distances.get(childNode.cityName);
@@ -158,10 +164,12 @@ public class CityMap extends Hashtable<String, CityNode> {
         startStopwatch();
         CityNode root = get(initialState);
         calcHeuristics(root);
-        PriorityQueue<CityNode> frontier = new PriorityQueue<>();
-        Map<String, CityNode> reached = new HashMap<>();
-        reached.put(root.cityName, root);
-        frontier.add(root);
+        Frontier<CityNode> frontier = new Frontier<>(strategy, root);
+        Map<String, CityNode> reached = null;
+        if (strategy != Strategy.DEPTH) {
+            reached = new HashMap<>();
+            reached.put(root.cityName, root);
+        }
 
         CityNode node;
         while (!frontier.isEmpty()) {
@@ -169,23 +177,45 @@ public class CityMap extends Hashtable<String, CityNode> {
             node.setEvalAction("  Expanding");
             generatedNodes.add(node.nodeSummary());
             nodesGenerated++;
+
             if (node.getCityName().equals(goalState)) {
                 nodesInFrontier = frontier.size();
                 stopStopwatch();
                 node.setEvalAction("* Goal found");
                 return node;
             }
-            for (CityNode child : expand(node, goalState)) {
-                String state = child.cityName;
-                if (reached.get(state) == null || child.pathCost < reached.get(state).pathCost) {
-                    reached.put(state, child);
+            else if (strategy == Strategy.DEPTH && !node.getCityName().equals(initialState)) {
+                for (CityNode child : expand(node, goalState)) {
                     frontier.add(child);
-                    child.setEvalAction("    Adding");
-                    generatedNodes.add(child.nodeSummary());
                 }
-                else {
-                    child.setEvalAction("    NOT Adding");
-                    generatedNodes.add(child.nodeSummary());
+            }
+            else if (strategy != Strategy.DEPTH) {
+                for (CityNode child : expand(node, goalState)) {
+                    String state = child.cityName;
+                    if (strategy == Strategy.BREADTH) {
+                        if (state.equals(goalState)) {
+                            nodesInFrontier = frontier.size();
+                            stopStopwatch();
+                            node.setEvalAction("* Goal found");
+                            return node;
+                        }
+                        else if (!reached.containsKey(state)) {
+                            reached.put(state, child);
+                            frontier.add(child);
+                        }
+                    }
+                    else {
+                        if (reached.get(state) == null || child.pathCost < reached.get(state).pathCost) {
+                            reached.put(state, child);
+                            frontier.add(child);
+                            child.setEvalAction("    Adding");
+                            generatedNodes.add(child.nodeSummary());
+                        }
+                        else {
+                            child.setEvalAction("    NOT Adding");
+                            generatedNodes.add(child.nodeSummary());
+                        }
+                    }
                 }
             }
         }
