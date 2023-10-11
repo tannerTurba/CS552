@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Queue;
 
 public class Navigator {
     private File file;
@@ -19,11 +20,20 @@ public class Navigator {
         parseArgs(args);
         map = new CityMap(file, destinationCity);
 
-        // System.out.println(this);
-        // System.out.println(map);
-
         CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
-        level2(solution);
+
+        if (verbosity == 3) {
+            level3(solution);
+        }
+        else if (verbosity == 1) {
+            level1(solution);
+        }
+        else if (verbosity == 2) {
+            level2(solution);
+        }
+        else {
+            level0(solution);
+        }
     }
 
     public String toString() {
@@ -82,7 +92,7 @@ public class Navigator {
             else if(args[i].equals("--no-reached")) {
                 reachedIsUsed = false;
             }
-            else if(args[i].equals("v")) {
+            else if(args[i].equals("-v")) {
                 i++;
                 verbosity = Integer.parseInt(args[i]);
             }
@@ -104,8 +114,8 @@ public class Navigator {
     public void level0(CityNode solution) {
         System.out.println(solution.actions);
         System.out.printf("Distance: %.1f\n\n", solution.pathCost);
-        System.out.println("Total nodes generated      : " + Stats.getNumNodesGenerated());
-        System.out.println("Nodes remaining on frontier: " + Stats.getNodesInFrontier());
+        System.out.println("Total nodes generated      : " + map.getNumNodesGenerated());
+        System.out.println("Nodes remaining on frontier: " + map.getNumNodesInFrontier());
     }
 
     private String getSearchProblem(CityNode solution) {
@@ -116,42 +126,38 @@ public class Navigator {
     }
 
     private String getSearchDetails(CityNode solution) {
-        String val = "";
-        if (!solution.actions.equals("NO PATH")) {
-            val += "* Goal found  : " + nodeSummary(solution);
-        }
-        val += "* Search took " + Stats.getElapsedTime() + "ms\n";
-        return val;
-    }
-
-    private String nodeSummary(CityNode node) {
-        String lastState;
-        if (!node.actions.contains("->")) {
-            lastState = "null";
-        }
-        else {
-            String[] actions = node.actions.split(" -> ");
-            lastState = actions[actions.length-1];
-        }
-        return String.format("%-13s  (p-> %-11s) [f=%6.1f; g=%6.1f; h=%6.1f]\n", node.cityName, lastState, node.getF(), node.getG(), node.getH());
+        return solution.nodeSummary() + "* Search took " + map.getElapsedTime() + "ms\n";
     }
 
     public void level1(CityNode solution) {
         String val = getSearchProblem(solution);
         val += getSearchDetails(solution);
-        val += nodeSummary(solution);
+        val += solution.nodeSummary();
         System.out.println(val);
         level0(solution);
     }
 
     public void level2(CityNode solution) {
         String val = getSearchProblem(solution);
-        CityNode node;
-        while (!Stats.nodesGenerated.isEmpty()) {
-            node = Stats.nodesGenerated.poll();
-            val += "  Expanding   : " + nodeSummary(node);
+        Queue<String> generatedNodes = map.getGeneratedNodes();
+        while (!generatedNodes.isEmpty()) {
+            String summary = generatedNodes.poll();
+            String x = summary.strip().split(" ")[0];
+            if (summary.strip().split(" ")[0].equals("Expanding")) {
+                val += summary;
+            }
         }
+        val += getSearchDetails(solution);
+        System.out.println(val);
+        level0(solution);
+    }
 
+    public void level3(CityNode solution) {
+        String val = getSearchProblem(solution);
+        Queue<String> generatedNodes = map.getGeneratedNodes();
+        while (!generatedNodes.isEmpty()) {
+            val += generatedNodes.poll();
+        }
         val += getSearchDetails(solution);
         System.out.println(val);
         level0(solution);

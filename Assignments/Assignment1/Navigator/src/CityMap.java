@@ -5,25 +5,22 @@ public class CityMap extends Hashtable<String, CityNode> {
     private File inputFile;
     private String goal;
     public Map<String, double[]> coordinates = new Hashtable<>();
+    private Queue<String> generatedNodes = new LinkedList<>();
+    private int nodesGenerated, nodesInFrontier;
+    private long startTime = 0;
+    private long stopTime = 0;
 
     public CityMap(File inputFile, String goal) {
         super();
         this.inputFile = inputFile;
         this.goal = goal;
         parseInput();
-        
-        // Enumeration<String> cities = keys();
-        // CityNode node;
-        // while(cities.hasMoreElements()) {
-        //     node = get(cities.nextElement());
-        //     calcHeuristics(node);
-        // }
     }
 
     private void calcHeuristics(CityNode currentNode) {
         double g, h;
         h = getHeuristic(currentNode.cityName);
-        g = currentNode.pathCost;//parentNode.distances.getOrDefault(goal, 0.0);
+        g = currentNode.pathCost;
         if(Navigator.getStrategy() == Strategy.GREEDY) {
             currentNode.setF(h);
         }
@@ -143,7 +140,8 @@ public class CityMap extends Hashtable<String, CityNode> {
         return Math.sqrt(Math.pow(lon, 2) + Math.pow(lat, 2));
     }
 
-    public List<CityNode> expand(CityNode city, String goal) {
+    public ArrayList<CityNode> expand(CityNode city, String goal) {
+        // PriorityQueue<CityNode> nodesToReturn = new PriorityQueue<>();
         ArrayList<CityNode> nodesToReturn = new ArrayList<>();
         for (String child : city.distances.keySet()) {
             CityNode childNode = get(child);
@@ -157,7 +155,7 @@ public class CityMap extends Hashtable<String, CityNode> {
     }
 
     public CityNode uniformCostSearch(String initialState, String goalState) {
-        Stats.startStopwatch();
+        startStopwatch();
         CityNode root = get(initialState);
         calcHeuristics(root);
         PriorityQueue<CityNode> frontier = new PriorityQueue<>();
@@ -168,10 +166,13 @@ public class CityMap extends Hashtable<String, CityNode> {
         CityNode node;
         while (!frontier.isEmpty()) {
             node = frontier.poll();
-            Stats.addNode(node);
+            node.setEvalAction("  Expanding");
+            generatedNodes.add(node.nodeSummary());
+            nodesGenerated++;
             if (node.getCityName().equals(goalState)) {
-                Stats.setNodesInFrontier(frontier.size());
-                Stats.stopStopwatch();
+                nodesInFrontier = frontier.size();
+                stopStopwatch();
+                node.setEvalAction("* Goal found");
                 return node;
             }
             for (CityNode child : expand(node, goalState)) {
@@ -179,54 +180,85 @@ public class CityMap extends Hashtable<String, CityNode> {
                 if (reached.get(state) == null || child.pathCost < reached.get(state).pathCost) {
                     reached.put(state, child);
                     frontier.add(child);
+                    child.setEvalAction("    Adding");
+                    generatedNodes.add(child.nodeSummary());
+                }
+                else {
+                    child.setEvalAction("    NOT Adding");
+                    generatedNodes.add(child.nodeSummary());
                 }
             }
         }
-        Stats.stopStopwatch();
+        stopStopwatch();
         return new CityNode(null, null, "NO PATH", -1);
     }
 
-    public String depthFirstSearch(String initialState, String goalState) {
-        CityNode root = get(initialState);
-        Stack<CityNode> frontier = new Stack<>();
-        frontier.add(root);
+    // public String depthFirstSearch(String initialState, String goalState) {
+    //     CityNode root = get(initialState);
+    //     Stack<CityNode> frontier = new Stack<>();
+    //     frontier.add(root);
 
-        while (!frontier.empty()) {
-            CityNode node = frontier.pop();
-            if (node.getCityName().equals(goalState)) {
-                Stats.setNodesInFrontier(frontier.size());
-                return node.getActions();
-            }
-            else if (!node.getCityName().equals(initialState)) {
-                for (CityNode child : expand(node, goalState)) {
-                    frontier.add(child);
-                }
-            }
-        }
-        return "NO PATH";
+    //     while (!frontier.empty()) {
+    //         CityNode node = frontier.pop();
+    //         if (node.getCityName().equals(goalState)) {
+    //             Stats.setNodesInFrontier(frontier.size());
+    //             return node.getActions();
+    //         }
+    //         else if (!node.getCityName().equals(initialState)) {
+    //             for (CityNode child : expand(node, goalState)) {
+    //                 frontier.add(child);
+    //             }
+    //         }
+    //     }
+    //     return "NO PATH";
+    // }
+
+    // public String breadthFirstSearch(String initialState, String goalState) {
+    //     CityNode root = get(initialState);
+    //     Map<String, CityNode> reached = new Hashtable<>();
+    //     reached.put(initialState, root);
+    //     Stack<CityNode> frontier = new Stack<>();
+    //     frontier.add(root);
+
+    //     while (!frontier.empty()) {
+    //         CityNode node = frontier.pop();
+    //         for (CityNode child : expand(node, goalState)) {
+    //             String state = child.cityName;
+    //             if (state.equals(goalState)) {
+    //                 Stats.setNodesInFrontier(frontier.size());
+    //                 return child.actions;
+    //             }
+    //             else if (!reached.containsKey(state)) {
+    //                 reached.put(state, child);
+    //                 frontier.add(child);
+    //             }
+    //         }
+    //     }
+    //     return "NO PATH";
+    // }
+
+    public Queue<String> getGeneratedNodes() {
+        return generatedNodes;
     }
 
-    public String breadthFirstSearch(String initialState, String goalState) {
-        CityNode root = get(initialState);
-        Map<String, CityNode> reached = new Hashtable<>();
-        reached.put(initialState, root);
-        Stack<CityNode> frontier = new Stack<>();
-        frontier.add(root);
-
-        while (!frontier.empty()) {
-            CityNode node = frontier.pop();
-            for (CityNode child : expand(node, goalState)) {
-                String state = child.cityName;
-                if (state.equals(goalState)) {
-                    Stats.setNodesInFrontier(frontier.size());
-                    return child.actions;
-                }
-                else if (!reached.containsKey(state)) {
-                    reached.put(state, child);
-                    frontier.add(child);
-                }
-            }
-        }
-        return "NO PATH";
+    public int getNumNodesGenerated() {
+        return nodesGenerated;
     }
+
+    public int getNumNodesInFrontier() {
+        return nodesInFrontier;
+    }
+
+    public void startStopwatch() {
+        startTime = System.currentTimeMillis();
+    }
+
+    public void stopStopwatch() {
+        stopTime = System.currentTimeMillis();
+    }
+
+    public long getElapsedTime() {
+        return stopTime - startTime;
+    }
+
 }

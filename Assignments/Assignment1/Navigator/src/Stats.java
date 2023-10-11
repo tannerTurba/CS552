@@ -8,7 +8,7 @@ public class Stats {
     private static String startState;
     private static String endState;
     private static Strategy searchStrategy = Strategy.A_STAR;
-    public static Queue<CityNode> nodesGenerated = new LinkedList<>();
+    // public static Queue<CityNode> nodesGenerated = new LinkedList<>();
     public static int nodeCount = 0;
 
     public static void setSearchStrategy(Strategy s) {
@@ -35,36 +35,36 @@ public class Stats {
         return endState;
     }
 
-    public static void startStopwatch() {
-        startTime = System.currentTimeMillis();
-    }
+    // public static void startStopwatch() {
+    //     startTime = System.currentTimeMillis();
+    // }
 
-    public static void stopStopwatch() {
-        stopTime = System.currentTimeMillis();
-    }
+    // public static void stopStopwatch() {
+    //     stopTime = System.currentTimeMillis();
+    // }
 
-    public static long getElapsedTime() {
-        return stopTime - startTime;
-    }
+    // public static long getElapsedTime() {
+    //     return stopTime - startTime;
+    // }
 
-    public static void addNode(CityNode node) {
-        nodesGenerated.add(node);
-        nodeCount++;
-    }
+    // public static void addNode(CityNode node) {
+    //     nodesGenerated.add(node);
+    //     nodeCount++;
+    // }
 
-    public static CityNode getNodeGenerated() {
-        return nodesGenerated.poll();
-    }
+    // public static CityNode getNodeGenerated() {
+    //     return nodesGenerated.poll();
+    // }
 
-    public static int getNumNodesGenerated() {
-        return nodeCount;
-    }
+    // public static int getNumNodesGenerated() {
+    //     return nodeCount;
+    // }
 
-    public static void setNodesInFrontier(int nodes) {
-        nodesInFrontier = nodes;
-    }
+    // public static void setNodesInFrontier(int nodes) {
+    //     nodesInFrontier = nodes;
+    // }
 
-    public static int getNodesInFrontier() {
-        return nodesInFrontier;
-    }
+    // public static int getNodesInFrontier() {
+    //     return nodesInFrontier;
+    // }
 }

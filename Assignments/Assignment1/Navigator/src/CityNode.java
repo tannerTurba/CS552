@@ -9,6 +9,7 @@ public class CityNode implements Comparable<CityNode> {
     private double f = 0.0;
     private double g = 0.0;
     private double h = 0.0;
+    private String evalAction = "";
     
     public CityNode(String cityName) {
         this.cityName = cityName;
@@ -56,18 +57,6 @@ public class CityNode implements Comparable<CityNode> {
         return pathCost;
     }
 
-    // public String toString() {
-    //     String result = "[" + getLatitude(cityName) + ", " + getLongitude(cityName) + "]\n";
-    //     Iterator<String> neighbors = distances.keySet().iterator();
-        
-    //     String neighbor;
-    //     while(neighbors.hasNext()) {
-    //         neighbor = neighbors.next();
-    //         result += "    |--> " + neighbor + ": " + distances.get(neighbor) + "\n";
-    //     }
-    //     return result;
-    // }
-
     @Override
     public int compareTo(CityNode city2) {
         if(f - city2.getF() > 0) {
@@ -101,5 +90,28 @@ public class CityNode implements Comparable<CityNode> {
 
     public void setG(double g) {
         this.g = g;
+    }
+
+    public String getEvalAction() {
+        return evalAction;
+    }
+
+    public void setEvalAction(String action) {
+        this.evalAction = action;
+    }
+
+    public String nodeSummary() {
+        String lastState;
+        if (!actions.contains("->")) {
+            lastState = "null";
+        }
+        else {
+            String[] actionsArray = actions.split(" -> ");
+            lastState = actionsArray[actionsArray.length-2];
+            if (lastState.contains("Route found: ")) {
+                lastState = lastState.replace("Route found: ", "");
+            }
+        }
+        return String.format("%-14s: %-13s  (p-> %-12s [f=%6.1f; g=%6.1f; h=%6.1f]\n", evalAction, cityName, lastState+')', f, g, h);
     }
 }
