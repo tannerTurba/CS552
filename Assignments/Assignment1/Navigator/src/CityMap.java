@@ -145,10 +145,17 @@ public class CityMap extends Hashtable<String, CityNode> {
         return Math.sqrt(Math.pow(lon, 2) + Math.pow(lat, 2));
     }
 
-    public ArrayList<CityNode> expand(CityNode city, String goal) {
+    public Collection<CityNode> expand(CityNode city, String goal) {
         // PriorityQueue<CityNode> nodesToReturn = new PriorityQueue<>();
-        ArrayList<CityNode> nodesToReturn = new ArrayList<>();
-        Collection<CityNode> toReturn = new PriorityQueue<>();
+        // ArrayList<CityNode> nodesToReturn = new ArrayList<>();
+        Collection<CityNode> nodesToReturn = null;
+        if (strategy == Strategy.GREEDY) {
+            nodesToReturn = new PriorityQueue<>();
+        }
+        else {
+            nodesToReturn = new ArrayList<>();
+        }
+
         for (String child : city.distances.keySet()) {
             CityNode childNode = get(child);
             Double cost = city.pathCost + city.distances.get(childNode.cityName);

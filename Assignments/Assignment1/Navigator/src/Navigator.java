@@ -56,12 +56,10 @@ public class Navigator {
             else if(args[i].equals("-i")) {
                 i++;
                 initialCity = args[i].replace('\"', '\"');
-                Stats.setStartState(initialCity);
             }
             else if(args[i].equals("-g")) {
                 i++;
                 destinationCity = args[i].replace('\"', '\"');
-                Stats.setEndState(destinationCity);
             }
             else if(args[i].equals("-s")) {
                 i++;
@@ -80,7 +78,6 @@ public class Navigator {
                 else {
                     searchStrategy = Strategy.A_STAR;
                 }
-                Stats.setSearchStrategy(searchStrategy);
             }
             else if(args[i].equals("-h")) {
                 i++;
@@ -121,7 +118,7 @@ public class Navigator {
     private String getSearchProblem(CityNode solution) {
         String val = "* Reading data from [" + file.getName() + "]\n";
         val += "* Number of cities: " + map.size() + "\n";
-        val += "* Searching for path from " + Stats.getStartState() + " to " + Stats.getEndState() + " using " + Stats.getSearchStrategy() + " Search\n";
+        val += "* Searching for path from " + initialCity + " to " + destinationCity + " using " + searchStrategy + " Search\n";
         return val;
     }
 
@@ -142,7 +139,6 @@ public class Navigator {
         Queue<String> generatedNodes = map.getGeneratedNodes();
         while (!generatedNodes.isEmpty()) {
             String summary = generatedNodes.poll();
-            String x = summary.strip().split(" ")[0];
             if (summary.strip().split(" ")[0].equals("Expanding")) {
                 val += summary;
             }
