@@ -1,13 +1,15 @@
 import java.io.File;
+import java.util.Queue;
 
 public class Navigator {
-    private String fileName;
+    private File file;
     private String initialCity;
     private static String destinationCity;
     private static Strategy searchStrategy = Strategy.A_STAR;
     private static Heuristic hFunction = Heuristic.HAVERSINE;
     private boolean reachedIsUsed = true;
     private int verbosity = 0;
+    private CityMap map;
 
     public static void main(String[] args) {
         System.out.println();
@@ -16,18 +18,26 @@ public class Navigator {
 
     public Navigator(String[] args) {
         parseArgs(args);
-        IOManager ioManager = new IOManager(new File(fileName));
-        CityMap map = ioManager.parseInput();
-
-        // System.out.println(this);
-        // System.out.println(map);
+        map = new CityMap(file, destinationCity);
 
         CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
-        ioManager.level2(solution);
+
+        if (verbosity == 3) {
+            level3(solution);
+        }
+        else if (verbosity == 1) {
+            level1(solution);
+        }
+        else if (verbosity == 2) {
+            level2(solution);
+        }
+        else {
+            level0(solution);
+        }
     }
 
     public String toString() {
-        String strToPrint = "FileName: " + fileName + "\n";
+        String strToPrint = "FileName: " + file.getName() + "\n";
         strToPrint += "InitialCity: " + initialCity + "\n";
         strToPrint += "DestinationCity: " + destinationCity + "\n";
         strToPrint += "SearchStrategy: " + searchStrategy + "\n";
@@ -41,7 +51,7 @@ public class Navigator {
         for(int i = 0; i < args.length; i++) {
             if(args[i].equals("-f")) {
                 i++;
-                fileName = args[i];
+                file = new File(args[i]);
             }
             else if(args[i].equals("-i")) {
                 i++;
@@ -82,7 +92,7 @@ public class Navigator {
             else if(args[i].equals("--no-reached")) {
                 reachedIsUsed = false;
             }
-            else if(args[i].equals("v")) {
+            else if(args[i].equals("-v")) {
                 i++;
                 verbosity = Integer.parseInt(args[i]);
             }
@@ -99,5 +109,57 @@ public class Navigator {
 
     public static String getGoal() {
         return destinationCity;
+    }
+
+    public void level0(CityNode solution) {
+        System.out.println(solution.actions);
+        System.out.printf("Distance: %.1f\n\n", solution.pathCost);
+        System.out.println("Total nodes generated      : " + map.getNumNodesGenerated());
+        System.out.println("Nodes remaining on frontier: " + map.getNumNodesInFrontier());
+    }
+
+    private String getSearchProblem(CityNode solution) {
+        String val = "* Reading data from [" + file.getName() + "]\n";
+        val += "* Number of cities: " + map.size() + "\n";
+        val += "* Searching for path from " + Stats.getStartState() + " to " + Stats.getEndState() + " using " + Stats.getSearchStrategy() + " Search\n";
+        return val;
+    }
+
+    private String getSearchDetails(CityNode solution) {
+        return solution.nodeSummary() + "* Search took " + map.getElapsedTime() + "ms\n";
+    }
+
+    public void level1(CityNode solution) {
+        String val = getSearchProblem(solution);
+        val += getSearchDetails(solution);
+        val += solution.nodeSummary();
+        System.out.println(val);
+        level0(solution);
+    }
+
+    public void level2(CityNode solution) {
+        String val = getSearchProblem(solution);
+        Queue<String> generatedNodes = map.getGeneratedNodes();
+        while (!generatedNodes.isEmpty()) {
+            String summary = generatedNodes.poll();
+            String x = summary.strip().split(" ")[0];
+            if (summary.strip().split(" ")[0].equals("Expanding")) {
+                val += summary;
+            }
+        }
+        val += getSearchDetails(solution);
+        System.out.println(val);
+        level0(solution);
+    }
+
+    public void level3(CityNode solution) {
+        String val = getSearchProblem(solution);
+        Queue<String> generatedNodes = map.getGeneratedNodes();
+        while (!generatedNodes.isEmpty()) {
+            val += generatedNodes.poll();
+        }
+        val += getSearchDetails(solution);
+        System.out.println(val);
+        level0(solution);
     }
 }
