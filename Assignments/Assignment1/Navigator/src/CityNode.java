@@ -2,10 +2,9 @@ import java.util.*;
 
 public class CityNode implements Comparable<CityNode> {
     private Map<String, Double> distances = new Hashtable<>();
-    public String cityName;
-    public CityNode parent;
-    public String actions = "Route found: ";
-    public double pathCost = 0.0;
+    private String cityName;
+    private String actions = "Route found: ";
+    private double pathCost = 0.0;
     private double f = 0.0;
     private double g = 0.0;
     private double h = 0.0;
@@ -16,9 +15,8 @@ public class CityNode implements Comparable<CityNode> {
         this.actions += cityName;
     }
 
-    public CityNode(CityNode child, CityNode parent, String action, double pathCost) {
+    public CityNode(CityNode child, String action, double pathCost) {
         this.cityName = child.cityName;
-        this.parent = parent;
         this.actions = action;
         this.pathCost = pathCost;
         this.f = pathCost;
@@ -46,42 +44,12 @@ public class CityNode implements Comparable<CityNode> {
         return actions;
     }
 
-    public double getDistanceTo(String someCtiy) {
-        if(distances.containsKey(someCtiy)) {
-            return distances.get(someCtiy).doubleValue();
-        }
-        return -1.0;
-    }
-
-    public void setPathCost(double cost) {
-        pathCost = cost;
-    }
-
     public double getPathCost() {
         return pathCost;
     }
 
-    @Override
-    public int compareTo(CityNode city2) {
-        if(f - city2.getF() > 0) {
-            return 1;
-        }
-        else if(f - city2.getF() < 0) {
-            return -1;
-        }
-        return 0;
-    }
-
     public double getF() {
         return f;
-    }
-
-    public double getH() {
-        return h;
-    }
-
-    public double getG() {
-        return g;
     }
 
     public void setF(double f) {
@@ -94,10 +62,6 @@ public class CityNode implements Comparable<CityNode> {
 
     public void setG(double g) {
         this.g = g;
-    }
-
-    public String getEvalAction() {
-        return evalAction;
     }
 
     public void setEvalAction(String action) {
@@ -132,5 +96,16 @@ public class CityNode implements Comparable<CityNode> {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(CityNode city2) {
+        if(f - city2.getF() > 0) {
+            return 1;
+        }
+        else if(f - city2.getF() < 0) {
+            return -1;
+        }
+        return 0;
     }
 }

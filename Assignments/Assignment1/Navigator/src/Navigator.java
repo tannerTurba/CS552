@@ -5,7 +5,7 @@ public class Navigator {
     private File file;
     private String initialCity;
     private static String destinationCity;
-    private static Strategy searchStrategy = Strategy.A_STAR;
+    private Strategy searchStrategy = Strategy.A_STAR;
     private static Heuristic hFunction = Heuristic.HAVERSINE;
     private boolean reachedIsUsed = true;
     private int verbosity = 0;
@@ -18,9 +18,9 @@ public class Navigator {
 
     public Navigator(String[] args) {
         parseArgs(args);
-        map = new CityMap(file, destinationCity, searchStrategy);
+        map = new CityMap(file, destinationCity, searchStrategy, hFunction);
 
-        CityNode solution = map.uniformCostSearch(initialCity, destinationCity);
+        CityNode solution = map.search(initialCity, destinationCity);
 
         if (verbosity == 3) {
             level3(solution);
@@ -34,17 +34,6 @@ public class Navigator {
         else {
             level0(solution);
         }
-    }
-
-    public String toString() {
-        String strToPrint = "FileName: " + file.getName() + "\n";
-        strToPrint += "InitialCity: " + initialCity + "\n";
-        strToPrint += "DestinationCity: " + destinationCity + "\n";
-        strToPrint += "SearchStrategy: " + searchStrategy + "\n";
-        strToPrint += "Heuristic Function: " + hFunction + "\n";
-        strToPrint += "Reached is used: " + reachedIsUsed + "\n";
-        strToPrint += "Verbosity: " + verbosity + "\n";
-        return strToPrint;
     }
 
     private void parseArgs(String[] args) {
@@ -96,25 +85,6 @@ public class Navigator {
         }
     }
 
-    public static Strategy getStrategy() {
-        return searchStrategy;
-    }
-
-    public static Heuristic getHeuristic() {
-        return hFunction;
-    }
-
-    public static String getGoal() {
-        return destinationCity;
-    }
-
-    public void level0(CityNode solution) {
-        System.out.println(solution.actions);
-        System.out.printf("Distance: %.1f\n\n", solution.pathCost);
-        System.out.println("Total nodes generated      : " + map.getNumNodesGenerated());
-        System.out.println("Nodes remaining on frontier: " + map.getNumNodesInFrontier());
-    }
-
     private String getSearchProblem(CityNode solution) {
         String val = "* Reading data from [" + file.getName() + "]\n";
         val += "* Number of cities: " + map.size() + "\n";
@@ -124,6 +94,13 @@ public class Navigator {
 
     private String getSearchDetails(CityNode solution) {
         return solution.nodeSummary() + "* Search took " + map.getElapsedTime() + "ms\n";
+    }
+
+    public void level0(CityNode solution) {
+        System.out.println(solution.getActions());
+        System.out.printf("Distance: %.1f\n\n", solution.getPathCost());
+        System.out.println("Total nodes generated      : " + map.getNumNodesGenerated());
+        System.out.println("Nodes remaining on frontier: " + map.getNumNodesInFrontier());
     }
 
     public void level1(CityNode solution) {
