@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class CityNode implements Comparable<CityNode> {
-    public Map<String, Double> distances = new Hashtable<>();
+    private Map<String, Double> distances = new Hashtable<>();
     public String cityName;
     public CityNode parent;
     public String actions = "Route found: ";
@@ -32,6 +32,10 @@ public class CityNode implements Comparable<CityNode> {
         else {
             System.out.println("A distance to " + cityName + " already exists");
         }
+    }
+
+    public Map<String, Double> getDistances() {
+        return distances;
     }
 
     public String getCityName() {
@@ -113,5 +117,20 @@ public class CityNode implements Comparable<CityNode> {
             }
         }
         return String.format("%-14s: %-13s  (p-> %-12s [f=%6.1f; g=%6.1f; h=%6.1f]\n", evalAction, cityName, lastState+')', f, g, h);
+    }
+
+    public boolean isCycle() {
+        String[] actionsArray = actions.split(" -> ");
+        if (actionsArray.length <= 2) {
+            return false;
+        }
+
+        String currentState = actionsArray[actionsArray.length-1];
+        for (int i = 0; i < actionsArray.length - 1; i++) {
+            if (actionsArray[i].contains(currentState)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

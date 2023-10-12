@@ -156,9 +156,9 @@ public class CityMap extends Hashtable<String, CityNode> {
             nodesToReturn = new ArrayList<>();
         }
 
-        for (String child : city.distances.keySet()) {
+        for (String child : city.getDistances().keySet()) {
             CityNode childNode = get(child);
-            Double cost = city.pathCost + city.distances.get(childNode.cityName);
+            Double cost = city.pathCost + city.getDistances().get(childNode.cityName);
             String pathActions = city.actions + " -> " + childNode.cityName;
             CityNode newNode = new CityNode(childNode, city, pathActions, cost);
             calcHeuristics(newNode);
@@ -182,16 +182,19 @@ public class CityMap extends Hashtable<String, CityNode> {
         while (!frontier.isEmpty()) {
             node = frontier.poll();
             node.setEvalAction("  Expanding");
+            if (node.isCycle()) {
+                node.setEvalAction("    NOT Adding");
+            }
             generatedNodes.add(node.nodeSummary());
             nodesGenerated++;
-
-            if (node.getCityName().equals(goalState)) {
+            
+            if (node.getCityName().equals(goalState) && strategy != Strategy.BREADTH) {
                 nodesInFrontier = frontier.size();
                 stopStopwatch();
                 node.setEvalAction("* Goal found");
                 return node;
             }
-            else if (strategy == Strategy.DEPTH && !node.getCityName().equals(initialState)) {
+            else if (strategy == Strategy.DEPTH && !node.isCycle()) {
                 for (CityNode child : expand(node, goalState)) {
                     frontier.add(child);
                 }
@@ -203,12 +206,14 @@ public class CityMap extends Hashtable<String, CityNode> {
                         if (state.equals(goalState)) {
                             nodesInFrontier = frontier.size();
                             stopStopwatch();
-                            node.setEvalAction("* Goal found");
-                            return node;
+                            child.setEvalAction("* Goal found");
+                            return child;
                         }
                         else if (!reached.containsKey(state)) {
                             reached.put(state, child);
                             frontier.add(child);
+                            child.setEvalAction("    Adding");
+                            generatedNodes.add(child.nodeSummary());
                         }
                     }
                     else {

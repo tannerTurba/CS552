@@ -129,7 +129,7 @@ public class Navigator {
     public void level1(CityNode solution) {
         String val = getSearchProblem(solution);
         val += getSearchDetails(solution);
-        val += solution.nodeSummary();
+        // val += solution.nodeSummary();
         System.out.println(val);
         level0(solution);
     }
