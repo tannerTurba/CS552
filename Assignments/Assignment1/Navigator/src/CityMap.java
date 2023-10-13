@@ -157,13 +157,13 @@ public class CityMap extends Hashtable<String, CityNode> {
         return nodesToReturn;
     }
 
-    public CityNode search(String initialState, String goalState) {
+    public CityNode search(String initialState, String goalState, boolean reachedIsUsed) {
         startStopwatch();
         CityNode root = get(initialState);
         calcHeuristics(root);
         Frontier<CityNode> frontier = new Frontier<>(strategy, root);
         Map<String, CityNode> reached = null;
-        if (strategy != Strategy.DEPTH) {
+        if (strategy != Strategy.DEPTH && reachedIsUsed) {
             reached = new HashMap<>();
             reached.put(root.getCityName(), root);
         }
@@ -202,7 +202,7 @@ public class CityMap extends Hashtable<String, CityNode> {
                             child.setEvalAction("* Goal found");
                             return child;
                         }
-                        else if (!reached.containsKey(state)) {
+                        else if (reachedIsUsed && !reached.containsKey(state)) {
                             reached.put(state, child);
                             frontier.add(child);
                             if (verbosity == 3) {
@@ -212,7 +212,7 @@ public class CityMap extends Hashtable<String, CityNode> {
                         }
                     }
                     else {
-                        if (reached.get(state) == null || child.getPathCost() < reached.get(state).getPathCost()) {
+                        if (reachedIsUsed && (reached.get(state) == null || child.getPathCost() < reached.get(state).getPathCost())) {
                             reached.put(state, child);
                             frontier.add(child);
                             if (verbosity == 3) {
@@ -229,11 +229,10 @@ public class CityMap extends Hashtable<String, CityNode> {
             }
         }
         stopStopwatch();
-        return new CityNode(null, "NO PATH", -1);
+        return new CityNode("NO PATH");
     }
 
     public String getGeneratedNodes() {
-        // return generatedNodes;
         return sBuilder.toString();
     }
 

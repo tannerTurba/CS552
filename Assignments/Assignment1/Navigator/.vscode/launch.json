@@ -21,7 +21,7 @@
             // "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Shanghai -v 2 -s a-star"
             // "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Tokyo -v 3 -s a-star"
             // "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Tokyo -v 2 -s a-star"
-            "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Sydney -s a-star -v 3"
+            "args": "-f a01-data/cities02.csv -i \"La Crosse\" -g Sydney -s a-star -v 3 --no-reached"
         }
     ]
 }

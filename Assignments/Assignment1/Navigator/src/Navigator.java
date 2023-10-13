@@ -19,7 +19,7 @@ public class Navigator {
         parseArgs(args);
         map = new CityMap(file, destinationCity, searchStrategy, hFunction, verbosity);
 
-        CityNode solution = map.search(initialCity, destinationCity);
+        CityNode solution = map.search(initialCity, destinationCity, reachedIsUsed);
 
         if (verbosity == 1) {
             level1(solution);
