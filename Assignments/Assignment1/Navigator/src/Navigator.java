@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.Queue;
 
 public class Navigator {
     private File file;
@@ -18,18 +17,15 @@ public class Navigator {
 
     public Navigator(String[] args) {
         parseArgs(args);
-        map = new CityMap(file, destinationCity, searchStrategy, hFunction);
+        map = new CityMap(file, destinationCity, searchStrategy, hFunction, verbosity);
 
         CityNode solution = map.search(initialCity, destinationCity);
 
-        if (verbosity == 3) {
-            level3(solution);
-        }
-        else if (verbosity == 1) {
+        if (verbosity == 1) {
             level1(solution);
         }
-        else if (verbosity == 2) {
-            level2(solution);
+        else if (verbosity == 2 || verbosity == 3) {
+            level23(solution);
         }
         else {
             level0(solution);
@@ -104,35 +100,15 @@ public class Navigator {
     }
 
     public void level1(CityNode solution) {
-        String val = getSearchProblem(solution);
-        val += getSearchDetails(solution);
-        // val += solution.nodeSummary();
-        System.out.println(val);
+        System.out.print(getSearchProblem(solution));
+        System.out.println(getSearchDetails(solution));
         level0(solution);
     }
 
-    public void level2(CityNode solution) {
-        String val = getSearchProblem(solution);
-        Queue<String> generatedNodes = map.getGeneratedNodes();
-        while (!generatedNodes.isEmpty()) {
-            String summary = generatedNodes.poll();
-            if (summary.strip().split(" ")[0].equals("Expanding")) {
-                val += summary;
-            }
-        }
-        val += getSearchDetails(solution);
-        System.out.println(val);
-        level0(solution);
-    }
-
-    public void level3(CityNode solution) {
-        String val = getSearchProblem(solution);
-        Queue<String> generatedNodes = map.getGeneratedNodes();
-        while (!generatedNodes.isEmpty()) {
-            val += generatedNodes.poll();
-        }
-        val += getSearchDetails(solution);
-        System.out.println(val);
+    public void level23(CityNode solution) {
+        System.out.print(getSearchProblem(solution));
+        System.out.print(map.getGeneratedNodes());
+        System.out.println(getSearchDetails(solution));
         level0(solution);
     }
 }

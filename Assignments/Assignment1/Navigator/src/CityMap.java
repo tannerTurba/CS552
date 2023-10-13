@@ -5,19 +5,21 @@ public class CityMap extends Hashtable<String, CityNode> {
     private File inputFile;
     private String goal;
     private Map<String, double[]> coordinates = new Hashtable<>();
-    private Queue<String> generatedNodes = new LinkedList<>();
+    private StringBuilder sBuilder = new StringBuilder();
     private int nodesGenerated, nodesInFrontier;
     private long startTime = 0;
     private long stopTime = 0;
     private Strategy strategy;
     private Heuristic heuristic;
+    private int verbosity = 0;
 
-    public CityMap(File inputFile, String goal, Strategy strategy, Heuristic heuristic) {
+    public CityMap(File inputFile, String goal, Strategy strategy, Heuristic heuristic, int verbosity) {
         super();
         this.inputFile = inputFile;
         this.goal = goal;
         this.strategy = strategy;
         this.heuristic = heuristic;
+        this.verbosity = verbosity;
         parseInput();
     }
 
@@ -169,13 +171,16 @@ public class CityMap extends Hashtable<String, CityNode> {
         CityNode node;
         while (!frontier.isEmpty()) {
             node = frontier.poll();
-            node.setEvalAction("  Expanding");
-            if (node.isCycle()) {
+            if (node.isCycle() && verbosity == 3) {
                 node.setEvalAction("    NOT Adding");
+                sBuilder.append(node.nodeSummary());
             }
-            generatedNodes.add(node.nodeSummary());
-            nodesGenerated++;
+            else {
+                node.setEvalAction("  Expanding");
+                sBuilder.append(node.nodeSummary());
+            }
             
+            nodesGenerated++;
             if (node.getCityName().equals(goalState) && strategy != Strategy.BREADTH) {
                 nodesInFrontier = frontier.size();
                 stopStopwatch();
@@ -200,20 +205,24 @@ public class CityMap extends Hashtable<String, CityNode> {
                         else if (!reached.containsKey(state)) {
                             reached.put(state, child);
                             frontier.add(child);
-                            child.setEvalAction("    Adding");
-                            generatedNodes.add(child.nodeSummary());
+                            if (verbosity == 3) {
+                                child.setEvalAction("    Adding");
+                                sBuilder.append(child.nodeSummary());
+                            }
                         }
                     }
                     else {
                         if (reached.get(state) == null || child.getPathCost() < reached.get(state).getPathCost()) {
                             reached.put(state, child);
                             frontier.add(child);
-                            child.setEvalAction("    Adding");
-                            generatedNodes.add(child.nodeSummary());
+                            if (verbosity == 3) {
+                                child.setEvalAction("    Adding");
+                                sBuilder.append(child.nodeSummary());
+                            }
                         }
-                        else {
+                        else if (verbosity == 3) {
                             child.setEvalAction("    NOT Adding");
-                            generatedNodes.add(child.nodeSummary());
+                            sBuilder.append(child.nodeSummary());
                         }
                     }
                 }
@@ -223,8 +232,9 @@ public class CityMap extends Hashtable<String, CityNode> {
         return new CityNode(null, "NO PATH", -1);
     }
 
-    public Queue<String> getGeneratedNodes() {
-        return generatedNodes;
+    public String getGeneratedNodes() {
+        // return generatedNodes;
+        return sBuilder.toString();
     }
 
     public int getNumNodesGenerated() {
