@@ -163,7 +163,7 @@ public class CityMap extends Hashtable<String, CityNode> {
             nodesGenerated++;
 
             // Determine output to record for current node.
-            if (node.isCycle() && verbosity == 3) {
+            if (reachedIsUsed && node.isCycle() && verbosity == 3) {
                 node.setEvalAction("    NOT Adding");
                 sBuilder.append(node);
             }
@@ -211,6 +211,13 @@ public class CityMap extends Hashtable<String, CityNode> {
                         if (reachedIsUsed && (reached.get(state) == null || child.getPathCost() < reached.get(state).getPathCost())) {
                             // Only add current state to the reached table if its better than the current value of state in the table.
                             reached.put(state, child);
+                            frontier.add(child);
+                            if (verbosity == 3) {
+                                child.setEvalAction("    Adding");
+                                sBuilder.append(child);
+                            }
+                        }
+                        else if (!reachedIsUsed) {
                             frontier.add(child);
                             if (verbosity == 3) {
                                 child.setEvalAction("    Adding");
