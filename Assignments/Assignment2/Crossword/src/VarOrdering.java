@@ -1,0 +1,6 @@
+public enum VarOrdering {
+    STATIC,
+    MINIMUM_REMAINING_VALUES,
+    MOST_CONSTRAINING_VARIABLE,
+    HYBRID
+}
