@@ -4,8 +4,8 @@ import java.util.*;
 public class Puzzle {
     private int width = 0;
     private int height = 0;
-    private String[] board;
-    private String[] solution;
+    private Assignment board;
+    private Assignment solution;
     private Map<String, Variable> variables = new Hashtable<>();
 
     public Puzzle(File file, Data dictionary) {
@@ -13,19 +13,16 @@ public class Puzzle {
             Scanner scanner = new Scanner(file);
             width = scanner.nextInt();
             height = scanner.nextInt();
-            board = new String[width * height];
-            solution = new String[width * height];
+            board = new Assignment(width, height);
+            solution = new Assignment(width, height);
             
             // Set the 'board,' which is an in-memory representation of the input file.
             for(int row = 0; row < height; row++) {
                 for (int col = 0; col < width; col++) {
                     String element = scanner.next();
-                    setBoardElementAt(col, row, element);
-                    if (element.equals("#")) {
-                        setElementAt(solution, col, row, "#");
-                    }
-                    else {
-                        setElementAt(solution, col, row, "_");
+                    if (!element.equals("#")) {
+                        board.getElementAt(col, row).setValue(element);
+                        solution.getElementAt(col, row).setValue("_");
                     }
                 }
                 scanner.nextLine();
@@ -35,15 +32,15 @@ public class Puzzle {
             // Once the board is set, find every possible variable that needs to be completed.
             for(int row = 0; row < height; row++) {
                 for (int col = 0; col < width; col++) {
-                    char element = getBoardElementAt(col, row).charAt(0);
-                    if (Character.isDigit(element)) {
-                        if (isAcross(col, row)) {
+                    String element = board.getElementAt(col, row).getValue();
+                    if (Character.isDigit(element.charAt(0))) {
+                        if (board.isAcross(col, row)) {
                             int length = calcLength(col, row, true);
-                            variables.put(element + "-a", new Variable(col, row, length, true));
+                            variables.put(element + "a", new Variable(col, row, length, true));
                         }
-                        if (isDown(col, row)) {
+                        if (board.isDown(col, row)) {
                             int length = calcLength(col, row, false);
-                            variables.put(element + "-d", new Variable(col, row, length, false));
+                            variables.put(element + "d", new Variable(col, row, length, false));
                         }
                     }
                 }
@@ -63,54 +60,27 @@ public class Puzzle {
         }
     }
 
-    public String[] backTrackingSearch() {
+    public Assignment backTrackingSearch() {
         return backTrackingSearch(variables, solution);
     }
 
-    private String[] backTrackingSearch(Map<String, Variable> csp, String[] assignment) {
+    private Assignment backTrackingSearch(Map<String, Variable> csp, Assignment assignment) {
         if (isComplete(csp)) {
             return assignment;
         }
         Variable var = getUnassignedVariable(csp);
         for (String value : var.domain) {
-            if (isConsistent(var, value, assignment)) {
-                setAssignment(var, value, assignment);
+            if (assignment.isConsistent(var, value)) {
+                assignment.setAssignment(var, value);
                 //ConstrainPropegation?
-                String[] result = backTrackingSearch(csp, assignment);
-                if (!result[0].equals("FAILURE")) {
+                Assignment result = backTrackingSearch(csp, assignment);
+                if (!result.getElementAt(0, 0).getValue().equals("FAILURE")) {
                     return result;
                 }
-                undoAssignment(var, assignment);
+                assignment.undoAssignment(var);
             }
         }
-        return new String[]{"FAILURE"};
-    }
-
-    private boolean isConsistent(Variable var, String value, String[] assignment) {
-        int col = var.getCol();
-        int row = var.getRow();
-        int index = 0;
-
-        if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
-                String currentVal = getElementAt(assignment, x, row);
-                if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
-                    return false;
-                }
-                index++;
-            }
-        }
-        else {
-            for (int y = row; y < var.getLength(); y++) {
-                String currentVal = getElementAt(assignment, col, y);
-                char test = value.charAt(index);
-                if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
-                    return false;
-                }
-                index++;
-            }
-        }
-        return true;
+        return new Assignment("FAILURE");
     }
 
     private boolean isComplete(Map<String, Variable> assignment) {
@@ -131,79 +101,13 @@ public class Puzzle {
         return null;
     }
 
-    //#region GettersSetters
-    private void setAssignment(Variable var, String value, String[] assignment) {
-        int col = var.getCol();
-        int row = var.getRow();
-        int index = 0;
-
-        if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
-                setElementAt(assignment, x, row, value.charAt(index) + "");
-                index++;
-            }
-        }
-        else {
-            for (int y = row; y < var.getLength(); y++) {
-                setElementAt(assignment, col, y, value.charAt(index) + "");
-                index++;
-            }
-        }
-        var.setAssignment(value);
-    }
-
-    //TODO: removes assignments that should stay, so find a way to represent double assignments
-    private void undoAssignment(Variable var, String[] assignment) {
-        int col = var.getCol();
-        int row = var.getRow();
-
-        if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
-                setElementAt(assignment, x, row, "_");
-            }
-        }
-        else {
-            for (int y = row; y < var.getLength(); y++) {
-                setElementAt(assignment, col, y, "_");
-            }
-        }
-        var.setAssignment(null);
-    }
-
-    private String getBoardElementAt(int col, int row) {
-        return board[(row * width) + col];
-    }
-
-    private void setElementAt(String[] board, int col, int row, String s) {
-        board[(row * width) + col] = s;
-    }
-
-    private String getElementAt(String[] board, int col, int row) {
-        return board[(row * width) + col];
-    }
-
-    private void setBoardElementAt(int col, int row, String s) {
-        board[(row * width) + col] = s;
-    }
-
     public Map<String, Variable> getVariables() {
         return variables;
-    }
-    //#endregion
-
-    private boolean isAcross(int col, int row) {
-        int index = (row * width) + col - 1;
-        return index == -1 || index % width == width - 1 || board[index].equals("#");
-    }
-
-    private boolean isDown(int col, int row) {
-        int index = ((row - 1) * width) + col;
-        return index < 0 || board[index].equals("#");
     }
 
     private int calcLength(int col, int row, boolean isAcross) {
         int count = 0;
-        while (!getBoardElementAt(col, row).equals("#")) {
+        while (!board.getElementAt(col, row).getValue().equals("#")) {
             count++;
             if (isAcross) {
                 col++;
@@ -223,20 +127,9 @@ public class Puzzle {
 
     public String toString() {
         StringBuilder b = new StringBuilder("Board:\n");
-        StringBuilder s = new StringBuilder("Solution:\n");
-
-        for(int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                b.append(getBoardElementAt(col, row));
-                b.append(" ");
-                s.append(getElementAt(solution, col, row));
-                s.append(" ");
-            }
-            b.append("\n");
-            s.append("\n");
-        }
-
-        b.append("\n" + s.toString());
+        b.append(board.toString());
+        // b.append("\nSolution\n");
+        // b.append(solution.toString());
         return b.toString();
     }
 }

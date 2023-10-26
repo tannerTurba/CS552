@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.*;
 
 public class Solve {
     private File dictionaryFile;
@@ -9,7 +8,7 @@ public class Solve {
     private IterationType valueOrder = IterationType.STATIC;
     private boolean isLimitedForwardChecking = false;
     private boolean shouldPreprocess = false;
-    private String[][] puzzle;
+    // private String[][] puzzle;
 
     public static void main(String[] args) {
         System.out.println();
@@ -23,9 +22,9 @@ public class Solve {
         System.out.println();
 
         Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary);
-        // Map<String, Variable> variables = puzzel.getVariables();
-        String[] x = puzzel.backTrackingSearch();
+        Assignment a = puzzel.backTrackingSearch();
         System.out.println(puzzel);
+        System.out.println(a);
     }
 
     /**
