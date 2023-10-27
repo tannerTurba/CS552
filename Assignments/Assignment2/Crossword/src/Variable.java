@@ -1,18 +1,22 @@
 import java.util.*;
 
-public class Variable {
+public class Variable implements Comparable<Variable> {
+    private String name;
     private int col;
     private int row;
     private int length;
     private boolean isAcross;
+    private VarOrdering orderingHeuristic;
     private String assignment = null;
     public ArrayList<String> domain = new ArrayList<>();
     
-    public Variable(int x, int y, int length, boolean isAcross) {
+    public Variable(String name, int x, int y, int length, boolean isAcross, VarOrdering orderingHeuristic) {
+        this.name = name;
         this.col = x;
         this.row = y;
         this.length = length;
         this.isAcross = isAcross;
+        this.orderingHeuristic = orderingHeuristic;
     }
 
     /**
@@ -72,7 +76,6 @@ public class Variable {
         this.assignment = assignment;
     }
 
-
     /**
      * @return boolean return the isAcross
      */
@@ -80,11 +83,37 @@ public class Variable {
         return isAcross;
     }
 
-    // /**
-    //  * @param isAcross the isAcross to set
-    //  */
-    // public void setIsAcross(boolean isAcross) {
-    //     this.isAcross = isAcross;
-    // }
+    public String getName() {
+        return name;
+    }
 
+    @Override
+    public int compareTo(Variable that) {
+        int thisVarNum = Integer.parseInt(this.getName().split("-")[0]);
+        int thatVarNum = Integer.parseInt(that.getName().split("-")[0]);
+        
+        if (orderingHeuristic == VarOrdering.MINIMUM_REMAINING_VALUES) {
+            return 1;
+        }
+        else if (orderingHeuristic == VarOrdering.MOST_CONSTRAINING_VARIABLE) {
+            return 1;
+        }
+        else if (orderingHeuristic == VarOrdering.HYBRID) {
+            return 1;
+        }
+        else {
+            if (thisVarNum > thatVarNum) {
+                return 1;
+            }
+            else if (thisVarNum < thatVarNum) {
+                return -1;
+            }
+            else {
+                if (this.isAcross) {
+                    return 1;
+                }
+                return -1;
+            }
+        }
+    }
 }

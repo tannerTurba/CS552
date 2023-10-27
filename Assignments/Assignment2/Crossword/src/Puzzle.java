@@ -6,9 +6,9 @@ public class Puzzle {
     private int height = 0;
     private Assignment board;
     private Assignment solution;
-    private Map<String, Variable> variables = new Hashtable<>();
+    private PriorityQueue<Variable> variables = new PriorityQueue<>();
 
-    public Puzzle(File file, Data dictionary) {
+    public Puzzle(File file, Data dictionary, VarOrdering orderingHeuristic) {
         try {
             Scanner scanner = new Scanner(file);
             width = scanner.nextInt();
@@ -36,18 +36,20 @@ public class Puzzle {
                     if (Character.isDigit(element.charAt(0))) {
                         if (board.isAcross(col, row)) {
                             int length = calcLength(col, row, true);
-                            variables.put(element + "a", new Variable(col, row, length, true));
+                            variables.add(new Variable(element + "-a", col, row, length, true, orderingHeuristic));
                         }
                         if (board.isDown(col, row)) {
                             int length = calcLength(col, row, false);
-                            variables.put(element + "d", new Variable(col, row, length, false));
+                            variables.add(new Variable(element + "-d", col, row, length, false, orderingHeuristic));
                         }
                     }
                 }
             }
 
             // Add dictionary words of the same length to the domain of every corresponding variable.
-            for (Variable var : variables.values()) {
+            Iterator<Variable> vars = variables.iterator();
+            while(vars.hasNext()) {
+                Variable var = vars.next();
                 for (String word : dictionary) {
                     if (var.getLength() == word.length()) {
                         var.domain.add(word);
@@ -64,7 +66,7 @@ public class Puzzle {
         return backTrackingSearch(variables, solution);
     }
 
-    private Assignment backTrackingSearch(Map<String, Variable> csp, Assignment assignment) {
+    private Assignment backTrackingSearch(PriorityQueue<Variable> csp, Assignment assignment) {
         if (isComplete(csp)) {
             return assignment;
         }
@@ -83,8 +85,10 @@ public class Puzzle {
         return new Assignment("FAILURE");
     }
 
-    private boolean isComplete(Map<String, Variable> assignment) {
-        for (Variable var : assignment.values()) {
+    private boolean isComplete(PriorityQueue<Variable> assignment) {
+        Iterator<Variable> vars = variables.iterator();
+        while(vars.hasNext()) {
+            Variable var = vars.next();
             if (var.getAssignment() == null) {
                 return false;
             }
@@ -92,8 +96,12 @@ public class Puzzle {
         return true;
     }
 
-    private Variable getUnassignedVariable(Map<String, Variable> vars) {
-        for (Variable var : vars.values()) {
+    private Variable getUnassignedVariable(PriorityQueue<Variable> vars) {
+        PriorityQueue<Variable> temp = new PriorityQueue<>(vars);
+        Variable var;
+
+        while (temp.peek() != null) {
+            var = temp.poll();
             if (var.getAssignment() == null) {
                 return var;
             }
@@ -101,7 +109,7 @@ public class Puzzle {
         return null;
     }
 
-    public Map<String, Variable> getVariables() {
+    public PriorityQueue<Variable> getVariables() {
         return variables;
     }
 
@@ -128,8 +136,6 @@ public class Puzzle {
     public String toString() {
         StringBuilder b = new StringBuilder("Board:\n");
         b.append(board.toString());
-        // b.append("\nSolution\n");
-        // b.append(solution.toString());
         return b.toString();
     }
 }

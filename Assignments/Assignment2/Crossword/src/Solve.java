@@ -21,7 +21,7 @@ public class Solve {
         System.out.println(dataDictionary);
         System.out.println();
 
-        Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary);
+        Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary, orderingHeuristic);
         Assignment a = puzzel.backTrackingSearch();
         System.out.println(puzzel);
         System.out.println(a);
