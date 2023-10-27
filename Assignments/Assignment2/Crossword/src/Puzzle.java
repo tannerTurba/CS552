@@ -36,11 +36,11 @@ public class Puzzle {
                     if (Character.isDigit(element.charAt(0))) {
                         if (board.isAcross(col, row)) {
                             int length = calcLength(col, row, true);
-                            variables.add(new Variable(element + "-a", col, row, length, true, orderingHeuristic));
+                            variables.add(new Variable(element + "-a", col, row, length, true, orderingHeuristic, solution));
                         }
                         if (board.isDown(col, row)) {
                             int length = calcLength(col, row, false);
-                            variables.add(new Variable(element + "-d", col, row, length, false, orderingHeuristic));
+                            variables.add(new Variable(element + "-d", col, row, length, false, orderingHeuristic, solution));
                         }
                     }
                 }
@@ -51,7 +51,7 @@ public class Puzzle {
             while(vars.hasNext()) {
                 Variable var = vars.next();
                 for (String word : dictionary) {
-                    if (var.getLength() == word.length()) {
+                    if (var.assignment.length == word.length()) {
                         var.domain.add(word);
                     }
                 }
@@ -73,13 +73,13 @@ public class Puzzle {
         Variable var = getUnassignedVariable(csp);
         for (String value : var.domain) {
             if (assignment.isConsistent(var, value)) {
-                assignment.setAssignment(var, value);
+                var.setAssignment(value);
                 //ConstrainPropegation?
                 Assignment result = backTrackingSearch(csp, assignment);
                 if (!result.getElementAt(0, 0).getValue().equals("FAILURE")) {
                     return result;
                 }
-                assignment.undoAssignment(var);
+                var.undoAssignment();
             }
         }
         return new Assignment("FAILURE");
@@ -89,7 +89,7 @@ public class Puzzle {
         Iterator<Variable> vars = variables.iterator();
         while(vars.hasNext()) {
             Variable var = vars.next();
-            if (var.getAssignment() == null) {
+            if (!var.isAssigned()) {
                 return false;
             }
         }
@@ -102,7 +102,7 @@ public class Puzzle {
 
         while (temp.peek() != null) {
             var = temp.poll();
-            if (var.getAssignment() == null) {
+            if (!var.isAssigned()) {
                 return var;
             }
         }

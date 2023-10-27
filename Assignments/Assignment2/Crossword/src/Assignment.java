@@ -9,7 +9,9 @@ public class Assignment {
         this.height = height;
         values = new LetterBox[width * height];
         for (int i = 0; i < values.length; i++) {
-            values[i] = new LetterBox();
+            int x = i % width;
+            int y = i / width;
+            values[i] = new LetterBox(x, y);
         }
     }
 
@@ -21,12 +23,12 @@ public class Assignment {
     }
 
     public boolean isConsistent(Variable var, String value) {
-        int col = var.getCol();
-        int row = var.getRow();
+        int col = var.assignment[0].getX();
+        int row = var.assignment[0].getY();
         int index = 0;
 
         if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
+            for (int x = col; x < var.assignment.length; x++) {
                 String currentVal = getElementAt(x, row).getValue();
                 if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
                     return false;
@@ -35,7 +37,7 @@ public class Assignment {
             }
         }
         else {
-            for (int y = row; y < var.getLength(); y++) {
+            for (int y = row; y < var.assignment.length; y++) {
                 String currentVal = getElementAt(col, y).getValue();
                 if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
                     return false;
@@ -44,55 +46,6 @@ public class Assignment {
             }
         }
         return true;
-    }
-
-    public void setAssignment(Variable var, String value) {
-        int col = var.getCol();
-        int row = var.getRow();
-        int index = 0;
-
-        if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
-                LetterBox box = getElementAt(x, row);
-                box.incrementCount();
-                box.setValue(value.charAt(index) + "");
-                index++;
-            }
-        }
-        else {
-            for (int y = row; y < var.getLength(); y++) {
-                LetterBox box = getElementAt(col, y);
-                box.incrementCount();
-                box.setValue(value.charAt(index) + "");
-                index++;
-            }
-        }
-        var.setAssignment(value);
-    }
-
-    public void undoAssignment(Variable var) {
-        int col = var.getCol();
-        int row = var.getRow();
-
-        if (var.isAcross()) {
-            for (int x = col; x < var.getLength(); x++) {
-                LetterBox box = getElementAt(x, row);
-                box.decrementCount();
-                if (box.getCount() == 0) {
-                    box.setValue("_");
-                }
-            }
-        }
-        else {
-            for (int y = row; y < var.getLength(); y++) {
-                LetterBox box = getElementAt(col, y);
-                box.decrementCount();
-                if (box.getCount() == 0) {
-                    box.setValue("_");
-                }
-            }
-        }
-        var.setAssignment(null);
     }
 
     public LetterBox getElementAt(int col, int row) {
