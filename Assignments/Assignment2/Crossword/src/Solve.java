@@ -8,7 +8,6 @@ public class Solve {
     private IterationType valueOrder = IterationType.STATIC;
     private boolean isLimitedForwardChecking = false;
     private boolean shouldPreprocess = false;
-    // private String[][] puzzle;
 
     public static void main(String[] args) {
         System.out.println();
@@ -21,7 +20,7 @@ public class Solve {
         System.out.println(dataDictionary);
         System.out.println();
 
-        Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary, orderingHeuristic);
+        Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary, orderingHeuristic, isLimitedForwardChecking);
         Assignment a = puzzel.backTrackingSearch();
         System.out.println(puzzel);
         System.out.println(a);

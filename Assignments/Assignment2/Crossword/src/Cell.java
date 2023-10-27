@@ -1,15 +1,15 @@
-public class LetterBox {
+public class Cell {
     private String value = "#";
     private int count = 0;
     private int x;
     private int y;
 
-    public LetterBox(int x, int y) {
+    public Cell(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public LetterBox(String value) {
+    public Cell(String value) {
         this.value = value;
     }
 

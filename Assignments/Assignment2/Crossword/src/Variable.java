@@ -4,28 +4,51 @@ public class Variable implements Comparable<Variable> {
     private String name;
     private boolean isAcross;
     private VarOrdering orderingHeuristic;
-    public LetterBox[] assignment;
+    public Cell[] assignment;
     public ArrayList<String> domain = new ArrayList<>();
     private boolean isAssigned = false;
+    public Map<Integer, Variable> intersections = new HashMap<>();
     
     public Variable(String name, int col, int row, int length, boolean isAcross, VarOrdering orderingHeuristic, Assignment board) {
         this.name = name;
-        this.assignment = new LetterBox[length];
+        this.assignment = new Cell[length];
         this.isAcross = isAcross;
         this.orderingHeuristic = orderingHeuristic;
 
         int index = 0;
         if (isAcross) {
-            for (int x = col; x < length; x++) {
+            for (int x = col; x < col + length; x++) {
                 assignment[index] = board.getElementAt(x, row);
                 index++;
             }
         }
         else {
-            for (int y = row; y < length; y++) {
+            for (int y = row; y < row + length; y++) {
                 assignment[index] = board.getElementAt(col, y);
                 index++;
             }
+        }
+    }
+
+    public boolean containsCell(int x, int y) {
+        int row = assignment[0].getY();
+        int col = assignment[0].getX();
+        if (isAcross) {
+            return y == row && col <= x && x <= (col + assignment.length);
+        }
+        else {
+            return x == col && row <= y && y <= (row + assignment.length);
+        }
+    }
+
+    public int getCellIndex(int x, int y) {
+        int row = assignment[0].getY();
+        int col = assignment[0].getX();
+        if (isAcross) {
+            return x - col;
+        }
+        else {
+            return y - row;
         }
     }
 
@@ -34,8 +57,8 @@ public class Variable implements Comparable<Variable> {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (LetterBox box : assignment) {
-            sb.append(box);
+        for (Cell cell : assignment) {
+            sb.append(cell);
         }
         return sb.toString();
     }

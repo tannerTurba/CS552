@@ -2,30 +2,51 @@
 public class Assignment {
     private int width;
     private int height;
-    private LetterBox[] values;
+    public Cell[] values;
 
     public Assignment(int width, int height) {
         this.width = width;
         this.height = height;
-        values = new LetterBox[width * height];
+        values = new Cell[width * height];
         for (int i = 0; i < values.length; i++) {
             int x = i % width;
             int y = i / width;
-            values[i] = new LetterBox(x, y);
+            values[i] = new Cell(x, y);
         }
     }
 
     public Assignment(String value) {
         width = 1;
         height = 1;
-        LetterBox box = new LetterBox(value);
-        values = new LetterBox[]{box};
+        Cell cell = new Cell(value);
+        values = new Cell[]{cell};
     }
 
-    public boolean isConsistent(Variable var, String value) {
+    public boolean isConsistent(Variable var, String value, boolean isLimitedForwardChecking) {
         int col = var.assignment[0].getX();
         int row = var.assignment[0].getY();
         int index = 0;
+
+        if (isLimitedForwardChecking) {
+            boolean returnEarly = true;
+            for (int intersectionPoint : var.intersections.keySet()) {
+                int x = var.assignment[intersectionPoint].getX();
+                int y = var.assignment[intersectionPoint].getY();
+
+                Variable otherVar = var.intersections.get(intersectionPoint);
+                int otherPoint = var.getCellIndex(x, y);
+                if (value.charAt(intersectionPoint) == value.charAt(otherPoint)) {
+                    returnEarly = false;
+                    break;
+                }
+            }
+            if (returnEarly) {
+                return false;
+            }
+            //foreach variable, otherVar, intersecting with var
+                //if there exists a value in otherVar.domain that contains the same letter at the intersecting index as var.value, break loop
+            //return false
+        }
 
         if (var.isAcross()) {
             for (int x = col; x < var.assignment.length; x++) {
@@ -48,7 +69,7 @@ public class Assignment {
         return true;
     }
 
-    public LetterBox getElementAt(int col, int row) {
+    public Cell getElementAt(int col, int row) {
         return values[(row * width) + col];
     }
 

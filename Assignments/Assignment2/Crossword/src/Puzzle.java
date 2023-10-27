@@ -7,8 +7,11 @@ public class Puzzle {
     private Assignment board;
     private Assignment solution;
     private PriorityQueue<Variable> variables = new PriorityQueue<>();
+    private boolean isLimitedForwardChecking;
 
-    public Puzzle(File file, Data dictionary, VarOrdering orderingHeuristic) {
+
+    public Puzzle(File file, Data dictionary, VarOrdering orderingHeuristic, boolean isLimitedForwardChecking) {
+        this.isLimitedForwardChecking = isLimitedForwardChecking;
         try {
             Scanner scanner = new Scanner(file);
             width = scanner.nextInt();
@@ -56,6 +59,21 @@ public class Puzzle {
                     }
                 }
             }
+
+            if (isLimitedForwardChecking) {
+                for (Variable var : variables) {
+                    PriorityQueue<Variable> temp = new PriorityQueue<>(variables);
+                    temp.remove(var);
+                    for (Variable v : temp) {
+                        for (int i = 0; i < var.assignment.length; i++) {
+                            if (v.containsCell(var.assignment[i].getX(), var.assignment[i].getY())) {
+                                var.intersections.put(i, v);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -72,7 +90,7 @@ public class Puzzle {
         }
         Variable var = getUnassignedVariable(csp);
         for (String value : var.domain) {
-            if (assignment.isConsistent(var, value)) {
+            if (assignment.isConsistent(var, value, isLimitedForwardChecking)) {
                 var.setAssignment(value);
                 //ConstrainPropegation?
                 Assignment result = backTrackingSearch(csp, assignment);
