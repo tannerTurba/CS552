@@ -182,12 +182,13 @@ public class Puzzle {
     }
 
     private Variable getUnassignedVariable(PriorityQueue<Variable> vars) {
+        // System.out.println(solution.toString());
         PriorityQueue<Variable> temp = new PriorityQueue<>();
         for (Variable var : vars) {
             temp.add(var);
         }
-        Variable var;
 
+        Variable var;
         while (temp.peek() != null) {
             var = temp.poll();
             if (!var.isAssigned()) {

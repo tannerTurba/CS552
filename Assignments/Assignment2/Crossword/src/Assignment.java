@@ -42,9 +42,9 @@ public class Assignment {
 
     public String asString(boolean printPoundSigns) {
         StringBuilder b = new StringBuilder();
-
-        for (int col = 0; col < width; col++) {
-            for(int row = 0; row < height; row++) {
+        
+        for(int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
                 if (!getElementAt(col, row).toString().equals("#")) {
                     b.append(getElementAt(col, row));
                 }

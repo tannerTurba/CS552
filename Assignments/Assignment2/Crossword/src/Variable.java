@@ -102,8 +102,6 @@ public class Variable implements Comparable<Variable> {
     }
 
     public boolean isConsistent(String value) {
-        // int col = assignment[0].getX();
-        // int row = assignment[0].getY();
         int index = 0;
 
         if (Config.isLimitedForwardChecking) {
@@ -133,38 +131,16 @@ public class Variable implements Comparable<Variable> {
             }
             index++;
         }
-
-        // if (isAcross()) {
-        //     for (int x = col; x < assignment.length; x++) {
-        //         String currentVal = getElementAt(x, row).getValue();
-        //         if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
-        //             return false;
-        //         }
-        //         index++;
-        //     }
-        // }
-        // else {
-        //     for (int y = row; y < assignment.length; y++) {
-        //         String currentVal = getElementAt(col, y).getValue();
-        //         if (!(currentVal.equals("_") || currentVal.equals(value.charAt(index) + ""))) {
-        //             return false;
-        //         }
-        //         index++;
-        //     }
-        // }
         return true;
     }
 
     @Override
     public int compareTo(Variable that) {
-        int thisVarNum = Integer.parseInt(this.getName().replaceAll("(d|a)", ""));
-        int thatVarNum = Integer.parseInt(that.getName().replaceAll("(d|a)", ""));
-        
         if (Config.orderingHeuristic == VarOrdering.MINIMUM_REMAINING_VALUES) {
             int theseConsistencies = 0;
             int thoseConsistencies = 0;
             for (String str : this.domain) {
-                if (isConsistent(str)) {
+                if (this.isConsistent(str)) {
                     theseConsistencies++;
                 }
             }
@@ -175,21 +151,21 @@ public class Variable implements Comparable<Variable> {
             }
 
             if (theseConsistencies > thoseConsistencies) {
-                return 1;
+                return -1;
             }
             else if (theseConsistencies < thoseConsistencies) {
-                return -1;
+                return 1;
             }
             else {
                 return 0;
             }
         }
         else if (Config.orderingHeuristic == VarOrdering.MOST_CONSTRAINING_VARIABLE) {
-            if (this.intersections.size() > that.intersections.size()) {
-                return 1;
-            }
-            else if (this.intersections.size() < that.intersections.size()) {
+            if (this.intersections.size() < that.intersections.size()) {
                 return -1;
+            }
+            else if (this.intersections.size() > that.intersections.size()) {
+                return 1;
             }
             else {
                 return 0;
@@ -222,6 +198,9 @@ public class Variable implements Comparable<Variable> {
             }
         }
         else {
+            int thisVarNum = Integer.parseInt(this.getName().replaceAll("(d|a)", ""));
+            int thatVarNum = Integer.parseInt(that.getName().replaceAll("(d|a)", ""));
+
             if (thisVarNum > thatVarNum) {
                 return 1;
             }
