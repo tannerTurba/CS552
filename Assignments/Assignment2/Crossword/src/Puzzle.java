@@ -85,10 +85,20 @@ public class Puzzle {
 
     public Assignment backTrackingSearch() {
         if (Config.shouldPreprocess) {
+            sb.append("** Preprocessing: constraint propagation\n");
+            Queue<Integer> domainPopulations = new LinkedList<>();
+            for (Variable var : variables) {
+                domainPopulations.add(var.domain.size());
+            }
             if (!ac3(variables)) {
                 return new Assignment("FAILED");
             }
+            for (Variable var : variables) {
+                sb.append(String.format("  X%s: Revised domain has %d values (was %d)\n", var.getName(), var.domain.size(), domainPopulations.poll()));
+                domainPopulations.add(var.domain.size());
+            }
         }
+        sb.append("** Running backtracking search...\n");
         return backTrackingSearch(variables, solution, 0);
     }
 
@@ -129,29 +139,6 @@ public class Puzzle {
         }
         return new Assignment("FAILED");
     }
-
-    // private boolean ac3(ArrayList<Variable> csp, Assignment assignment) {
-    //     Queue<Pair<Variable, Variable>> queue = new LinkedList<>();
-    //     for (Variable var : csp) {
-    //         for (Variable adjacent : var.intersections.values()) {
-    //             queue.add(new Pair<>(var, adjacent));
-    //         }
-    //     }
-
-    //     while (!queue.isEmpty()) {
-    //         Pair<Variable, Variable> pair = queue.poll();
-    //         if (revise(csp, pair.key, pair.value)) {
-    //             if (pair.key.domain.size() == 0) {
-    //                 return false;
-    //             }
-    //             for (Variable neighbor : csp.get(csp.indexOf(pair.key)).intersections.values()) {
-    //                 neighbor.domain.remove(pair.value.getName());
-    //                 queue.add(new Pair<>(pair.key, neighbor));
-    //             }
-    //         }
-    //     }
-    //     return true;
-    // }
 
     private boolean ac3(ArrayList<Variable> csp) {
         Queue<Pair<Variable, Pair<Integer, Variable>>> queue = new LinkedList<>();

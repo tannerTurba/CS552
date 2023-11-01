@@ -44,7 +44,7 @@ public class Solve {
         sb.append(String.format("* CSP has %d variables\n", puzzel.getVariables().size()));
         sb.append(String.format("* CSP has %d constraints\n", puzzel.numOfIntersections / 2));
         sb.append("* Attempting to solve crossword puzzle...\n");
-        sb.append("** Running backtracking search...\n");
+        
         sb.append(puzzel.sb.toString());
 
         System.out.println(sb.toString());
