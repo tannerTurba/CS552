@@ -15,15 +15,12 @@ public class Solve {
     public Solve(String[] args) {
         parseArgs(args);
         Data dataDictionary = new Data(dictionaryFile);
-        // System.out.println(dataDictionary);
-        // System.out.println();
 
         Puzzle puzzel = new Puzzle(puzzleFile, dataDictionary);
         startStopwatch();
         Assignment a = puzzel.backTrackingSearch();
         stopStopwatch();
 
-        // System.out.println(puzzel);
         if (verbosity == 0) {
             verbosity0(a, puzzel);
         }
@@ -128,6 +125,9 @@ public class Solve {
             else if(args[i].equals("-v")) {
                 i++;
                 verbosity = Integer.parseInt(args[i]);
+                if (verbosity >= 2) {
+                    Config.isVerbosity2 = true;
+                }
             }
             else if(args[i].equals("--preprocess")) {
                 Config.shouldPreprocess = true;
