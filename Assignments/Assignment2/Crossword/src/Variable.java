@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Variable implements Comparable<Variable> {
+public class Variable {
     private String name;
     private boolean isAcross;
     public Cell[] assignment;
@@ -110,11 +110,17 @@ public class Variable implements Comparable<Variable> {
                 int x = assignment[intersectionPoint].getX();
                 int y = assignment[intersectionPoint].getY();
 
-                // Variable otherVar = var.intersections.get(intersectionPoint);
-                int otherPoint = getCellIndex(x, y);
-                if (value.charAt(intersectionPoint) == value.charAt(otherPoint)) {
-                    returnEarly = false;
-                    break;
+                //Check with other variable
+                Variable otherVar = intersections.get(intersectionPoint);
+                int otherPoint = otherVar.getCellIndex(x, y);
+                for (String otherVal : otherVar.domain) {
+                    if (value.charAt(intersectionPoint) == otherVal.charAt(otherPoint)) {
+                        returnEarly = false;
+                        break;
+                    }
+                    else {
+                        returnEarly = true;
+                    }
                 }
             }
             if (returnEarly) {
@@ -132,87 +138,5 @@ public class Variable implements Comparable<Variable> {
             index++;
         }
         return true;
-    }
-
-    @Override
-    public int compareTo(Variable that) {
-        if (Config.orderingHeuristic == VarOrdering.MINIMUM_REMAINING_VALUES) {
-            int theseConsistencies = 0;
-            int thoseConsistencies = 0;
-            for (String str : this.domain) {
-                if (this.isConsistent(str)) {
-                    theseConsistencies++;
-                }
-            }
-            for (String str : that.domain) {
-                if (that.isConsistent(str)) {
-                    thoseConsistencies++;
-                }
-            }
-
-            if (theseConsistencies > thoseConsistencies) {
-                return -1;
-            }
-            else if (theseConsistencies < thoseConsistencies) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-        else if (Config.orderingHeuristic == VarOrdering.MOST_CONSTRAINING_VARIABLE) {
-            if (this.intersections.size() < that.intersections.size()) {
-                return -1;
-            }
-            else if (this.intersections.size() > that.intersections.size()) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        }
-        else if (Config.orderingHeuristic == VarOrdering.HYBRID) {
-            int theseConsistencies = 0;
-            int thoseConsistencies = 0;
-            for (String str : this.domain) {
-                if (isConsistent(str)) {
-                    theseConsistencies++;
-                }
-            }
-            for (String str : that.domain) {
-                if (that.isConsistent(str)) {
-                    thoseConsistencies++;
-                }
-            }
-
-            int theseHeuristics = theseConsistencies + this.intersections.size();
-            int thoseHeuristics = thoseConsistencies + that.intersections.size();
-            if (theseHeuristics > thoseHeuristics) {
-                return 1;
-            }
-            else if (theseHeuristics < thoseHeuristics) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        }
-        else {
-            int thisVarNum = Integer.parseInt(this.getName().replaceAll("(d|a)", ""));
-            int thatVarNum = Integer.parseInt(that.getName().replaceAll("(d|a)", ""));
-
-            if (thisVarNum > thatVarNum) {
-                return 1;
-            }
-            else if (thisVarNum < thatVarNum) {
-                return -1;
-            }
-            else {
-                if (this.isAcross) {
-                    return -1;
-                }
-                return 1;
-            }
-        }
     }
 }
