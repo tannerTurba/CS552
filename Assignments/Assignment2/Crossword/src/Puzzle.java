@@ -84,6 +84,11 @@ public class Puzzle {
     }
 
     public Assignment backTrackingSearch() {
+        if (Config.shouldPreprocess) {
+            if (!ac3(variables)) {
+                return new Assignment("FAILED");
+            }
+        }
         return backTrackingSearch(variables, solution, 0);
     }
 
@@ -124,6 +129,88 @@ public class Puzzle {
         }
         return new Assignment("FAILED");
     }
+
+    // private boolean ac3(ArrayList<Variable> csp, Assignment assignment) {
+    //     Queue<Pair<Variable, Variable>> queue = new LinkedList<>();
+    //     for (Variable var : csp) {
+    //         for (Variable adjacent : var.intersections.values()) {
+    //             queue.add(new Pair<>(var, adjacent));
+    //         }
+    //     }
+
+    //     while (!queue.isEmpty()) {
+    //         Pair<Variable, Variable> pair = queue.poll();
+    //         if (revise(csp, pair.key, pair.value)) {
+    //             if (pair.key.domain.size() == 0) {
+    //                 return false;
+    //             }
+    //             for (Variable neighbor : csp.get(csp.indexOf(pair.key)).intersections.values()) {
+    //                 neighbor.domain.remove(pair.value.getName());
+    //                 queue.add(new Pair<>(pair.key, neighbor));
+    //             }
+    //         }
+    //     }
+    //     return true;
+    // }
+
+    private boolean ac3(ArrayList<Variable> csp) {
+        Queue<Pair<Variable, Pair<Integer, Variable>>> queue = new LinkedList<>();
+        for (Variable var : csp) {
+            for (Entry<Integer, Variable> adjacent : var.intersections.entrySet()) {
+                queue.add(new Pair<>(var, new Pair<>(adjacent.getKey(), adjacent.getValue())));
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            Pair<Variable, Pair<Integer, Variable>> pair = queue.poll();
+            if (revise(pair.key, pair.value)) {
+                if (pair.key.domain.size() == 0) {
+                    return false;
+                }
+                for (Entry<Integer, Variable> neighbor : pair.key.intersections.entrySet()) {
+                    Variable x_k = neighbor.getValue();
+                    int index_i = neighbor.getKey();
+                    Cell intersectionPoint = pair.key.assignment[index_i];
+                    int index_k = x_k.getCellIndex(intersectionPoint.getX(), intersectionPoint.getY());     //Find index where x_i intersects with x_k
+                    queue.add(new Pair<>(x_k, new Pair<>(index_k, pair.key)));         //Add x_k to queue
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean revise(Variable x_i, Pair<Integer, Variable> x_j) {
+        boolean revised = false;
+        ArrayList<String> elementsToRemove = new ArrayList<>();
+        for (String dom_i : x_i.domain) {
+            Cell intersectionPoint = x_i.assignment[x_j.key];
+            int index_j = x_j.value.getCellIndex(intersectionPoint.getX(), intersectionPoint.getY());
+
+            boolean shouldRemove = true;
+            for (String dom_j : x_j.value.domain) {
+                if (dom_i.charAt(x_j.key) == dom_j.charAt(index_j)) {
+                    shouldRemove = false;
+                    break;
+                }
+            }
+            if(shouldRemove) {
+                elementsToRemove.add(dom_i);
+                // x_i.domain.remove(dom_i);
+                revised = true;
+            }
+        }
+        x_i.domain.removeAll(elementsToRemove);
+        return revised;
+    }
+
+    // private boolean revise(ArrayList<Variable> csp, Variable x_i, Variable x_j) {
+    //     boolean revised = false;
+    //     int index_i = x_i.intersections.get(x_j)
+    //     for (String dom_i : x_i.domain) {
+            
+    //     }
+    //     return revised;
+    // }
 
     private boolean isComplete(ArrayList<Variable> assignment) {
         Iterator<Variable> vars = variables.iterator();
