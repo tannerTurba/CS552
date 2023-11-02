@@ -1,0 +1,723 @@
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is consistent
+  Backtrack Call:
+    Trying values for X1d
+    Assignment { X1d = ANOTHER } is consistent
+    Backtrack Call:
+      Trying values for X2d
+      Assignment { X2d = ANOTHER } is inconsistent
+      Assignment { X2d = DEVELOP } is inconsistent
+      Assignment { X2d = DETRACT } is inconsistent
+      Assignment { X2d = LEATHER } is inconsistent
+      Assignment { X2d = PROGRAM } is inconsistent
+      Assignment { X2d = THEOREM } is inconsistent
+      Assignment { X2d = TORNADO } is inconsistent
+      Assignment { X2d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X1d = DEVELOP } is inconsistent
+    Assignment { X1d = DETRACT } is inconsistent
+    Assignment { X1d = LEATHER } is inconsistent
+    Assignment { X1d = PROGRAM } is inconsistent
+    Assignment { X1d = THEOREM } is inconsistent
+    Assignment { X1d = TORNADO } is inconsistent
+    Assignment { X1d = VERBOSE } is inconsistent
+    Failed call; backtracking...
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X1d
+    Assignment { X1d = ANOTHER } is inconsistent
+    Assignment { X1d = DEVELOP } is consistent
+    Backtrack Call:
+      Trying values for X2d
+      Assignment { X2d = ANOTHER } is inconsistent
+      Assignment { X2d = DEVELOP } is inconsistent
+      Assignment { X2d = DETRACT } is inconsistent
+      Assignment { X2d = LEATHER } is inconsistent
+      Assignment { X2d = PROGRAM } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 15ms (7 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is inconsistent
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X1d
+    Assignment { X1d = ANOTHER } is inconsistent
+    Assignment { X1d = DEVELOP } is consistent
+    Backtrack Call:
+      Trying values for X2d
+      Assignment { X2d = ANOTHER } is inconsistent
+      Assignment { X2d = DEVELOP } is inconsistent
+      Assignment { X2d = DETRACT } is inconsistent
+      Assignment { X2d = LEATHER } is inconsistent
+      Assignment { X2d = PROGRAM } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 13ms (5 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs mrv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is inconsistent
+    Assignment { X2d = THEOREM } is inconsistent
+    Assignment { X2d = TORNADO } is inconsistent
+    Assignment { X2d = VERBOSE } is inconsistent
+    Failed call; backtracking...
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 14ms (6 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs mrv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is inconsistent
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 13ms (5 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is consistent
+  Backtrack Call:
+    Trying values for X3a
+    Assignment { X3a = ANOTHER } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = DEVELOP } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = DETRACT } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = LEATHER } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = THEOREM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = TORNADO } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = VERBOSE } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Failed call; backtracking...
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X3a
+    Assignment { X3a = ANOTHER } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = DEVELOP } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = DETRACT } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = LEATHER } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is inconsistent
+      Assignment { X1d = DETRACT } is inconsistent
+      Assignment { X1d = LEATHER } is inconsistent
+      Assignment { X1d = PROGRAM } is inconsistent
+      Assignment { X1d = THEOREM } is inconsistent
+      Assignment { X1d = TORNADO } is inconsistent
+      Assignment { X1d = VERBOSE } is inconsistent
+      Failed call; backtracking...
+    Assignment { X3a = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X2d
+        Assignment { X2d = ANOTHER } is inconsistent
+        Assignment { X2d = DEVELOP } is inconsistent
+        Assignment { X2d = DETRACT } is inconsistent
+        Assignment { X2d = LEATHER } is inconsistent
+        Assignment { X2d = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 25ms (18 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is inconsistent
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X3a
+    Assignment { X3a = ANOTHER } is inconsistent
+    Assignment { X3a = DEVELOP } is inconsistent
+    Assignment { X3a = DETRACT } is inconsistent
+    Assignment { X3a = LEATHER } is inconsistent
+    Assignment { X3a = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X2d
+        Assignment { X2d = ANOTHER } is inconsistent
+        Assignment { X2d = DEVELOP } is inconsistent
+        Assignment { X2d = DETRACT } is inconsistent
+        Assignment { X2d = LEATHER } is inconsistent
+        Assignment { X2d = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 13ms (5 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs mrv+deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is inconsistent
+    Assignment { X2d = THEOREM } is inconsistent
+    Assignment { X2d = TORNADO } is inconsistent
+    Assignment { X2d = VERBOSE } is inconsistent
+    Failed call; backtracking...
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 15ms (6 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vs mrv+deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = ANOTHER } is inconsistent
+  Assignment { X1a = DEVELOP } is consistent
+  Backtrack Call:
+    Trying values for X2d
+    Assignment { X2d = ANOTHER } is inconsistent
+    Assignment { X2d = DEVELOP } is inconsistent
+    Assignment { X2d = DETRACT } is inconsistent
+    Assignment { X2d = LEATHER } is inconsistent
+    Assignment { X2d = PROGRAM } is consistent
+    Backtrack Call:
+      Trying values for X1d
+      Assignment { X1d = ANOTHER } is inconsistent
+      Assignment { X1d = DEVELOP } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 13ms (5 recursive calls)
+
+DEVELOP
+E     R
+V     O
+E     G
+L     R
+O     A
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vo lcv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = DETRACT } is consistent
+  Backtrack Call:
+    Trying values for X1d
+    Assignment { X1d = DETRACT } is consistent
+    Backtrack Call:
+      Trying values for X2d
+      Assignment { X2d = ANOTHER } is inconsistent
+      Assignment { X2d = LEATHER } is inconsistent
+      Assignment { X2d = PROGRAM } is inconsistent
+      Assignment { X2d = THEOREM } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is inconsistent
+        Assignment { X3a = THEOREM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 14ms (5 recursive calls)
+
+DETRACT
+E     H
+T     E
+R     O
+A     R
+C     E
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword00.txt -v 2 -vo lcv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+** Dictionary has 8 words
+
+* Reading puzzle from [../a02-data/xword00.txt]
+** Puzzle
+ 1  _  _  _  _  _  2
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ _  #  #  #  #  #  _
+ 3  _  _  _  _  _  _
+
+* CSP has 4 variables
+* CSP has 4 constraints
+* Attempting to solve crossword puzzle...
+** Running backtracking search...
+Backtrack Call:
+  Trying values for X1a
+  Assignment { X1a = DETRACT } is consistent
+  Backtrack Call:
+    Trying values for X1d
+    Assignment { X1d = DETRACT } is consistent
+    Backtrack Call:
+      Trying values for X2d
+      Assignment { X2d = ANOTHER } is inconsistent
+      Assignment { X2d = LEATHER } is inconsistent
+      Assignment { X2d = PROGRAM } is inconsistent
+      Assignment { X2d = THEOREM } is consistent
+      Backtrack Call:
+        Trying values for X3a
+        Assignment { X3a = ANOTHER } is inconsistent
+        Assignment { X3a = DEVELOP } is inconsistent
+        Assignment { X3a = DETRACT } is inconsistent
+        Assignment { X3a = LEATHER } is inconsistent
+        Assignment { X3a = PROGRAM } is inconsistent
+        Assignment { X3a = THEOREM } is consistent
+        Backtrack Call:
+          Assignment is complete!
+
+SUCCESS! Solving took 13ms (5 recursive calls)
+
+DETRACT
+E     H
+T     E
+R     O
+A     R
+C     E
+THEOREM
+

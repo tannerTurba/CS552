@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "Solve",
             "projectName": "Crossword_5860d1c1",
-            "args": "-d a02-data/dictionary-small.txt -p a02-data/xword00.txt --preprocess -v 2"
+            "args": "-d a02-data/dictionary-large.txt -p a02-data/xword02.txt --preprocess -v 0"
         }
     ]
 }

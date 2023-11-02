@@ -1,0 +1,100 @@
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 0ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs mrv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs mrv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 0ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs mrv+deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vs mrv+deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vo lcv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 0ms (1 recursive calls)
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword02.txt -v 1 -vo lcv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+FAILED; Solving took 1ms (1 recursive calls)
+

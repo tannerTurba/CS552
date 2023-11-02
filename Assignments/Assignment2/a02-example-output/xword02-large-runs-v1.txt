@@ -1,0 +1,104 @@
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword02.txt -v 1 -vs mrv
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 337ms (332 recursive calls)
+
+ARRR CROP  APPS
+NOAH LOVES ROOT
+DAVYJONESLOCKER
+IRISES REAM EMU
+    LEAST AVAST
+TALKLIKEA HER  
+ATOI NIE MAGOG 
+BASSOON PENGUIN
+ DEMON PAD INGA
+  NEC PIRATEDAY
+BOOTY ANKLE    
+ACT TICK LAALAA
+SHIVERMETIMBERS
+IRMA SAYSO BACH
+NEET  NEON AHOY
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword02.txt -v 1 -vs mrv -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 8025ms (593 recursive calls)
+
+ARRR CROP  APPS
+NOAH LOVES ROOT
+DAVYJONESLOCKER
+IRISES REAM EMU
+    LEAST AVAST
+TALKLIKEA HER  
+ATOI NIE MAGOG 
+BASSOON PENGUIN
+ DEMON PAD INGA
+  NEC PIRATEDAY
+BOOTY ANKLE    
+ACT TICK LAALAA
+SHIVERMETIMBERS
+IRMA SAYSO BACH
+NEET  NEON AHOY
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword02.txt -v 1 -vs mrv+deg
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 343ms (327 recursive calls)
+
+ARRR CROP  APPS
+NOAH LOVES ROOT
+DAVYJONESLOCKER
+IRISES REAM EMU
+    LEAST AVAST
+TALKLIKEA HER  
+ATOI NIE MAGOG 
+BASSOON PENGUIN
+ DEMON PAD INGA
+  NEC PIRATEDAY
+BOOTY ANKLE    
+ACT TICK LAALAA
+SHIVERMETIMBERS
+IRMA SAYSO BACH
+NEET  NEON AHOY
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword02.txt -v 1 -vs mrv+deg -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword02.txt]
+* CSP has 74 variables
+* CSP has 188 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 3584ms (286 recursive calls)
+
+ARRR CROP  APPS
+NOAH LOVES ROOT
+DAVYJONESLOCKER
+IRISES REAM EMU
+    LEAST AVAST
+TALKLIKEA HER  
+ATOI NIE MAGOG 
+BASSOON PENGUIN
+ DEMON PAD INGA
+  NEC PIRATEDAY
+BOOTY ANKLE    
+ACT TICK LAALAA
+SHIVERMETIMBERS
+IRMA SAYSO BACH
+NEET  NEON AHOY
+

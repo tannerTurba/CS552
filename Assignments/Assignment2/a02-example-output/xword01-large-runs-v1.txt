@@ -1,0 +1,180 @@
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 66ms (2235 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 66ms (1693 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs mrv
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 39ms (27 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs mrv -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 58ms (10 recursive calls)
+
+COMMITS
+O O L P
+MODELLI
+M E U N
+ILLUVIA
+T L I C
+SPINACH
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs deg
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 133136ms (14269722 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs deg -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 111195ms (9764161 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs mrv+deg
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 41ms (27 recursive calls)
+
+BEACONS
+E I V Y
+AIMLESS
+C L R T
+OVERSEE
+N S E M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vs mrv+deg -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 55ms (10 recursive calls)
+
+COMMITS
+O O L P
+MODELLI
+M E U N
+ILLUVIA
+T L I C
+SPINACH
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vo lcv
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 1208ms (7670 recursive calls)
+
+SYSTEMS
+Y Y V Y
+SYNDICS
+T D T T
+EVITATE
+M C T M
+SYSTEMS
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-large.txt -p ../a02-data/xword01.txt -v 1 -vo lcv -lfc
+* Reading dictionary from [../a02-data/dictionary-large.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 1118ms (5802 recursive calls)
+
+SYSTEMS
+Y Y V Y
+SYNDICS
+T D T T
+EVITATE
+M C T M
+SYSTEMS
+

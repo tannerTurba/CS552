@@ -1,3 +1,11 @@
+/*
+ * Tanner Turba
+ * November 1, 2023
+ * CS 552 - Artificial Intelligence - Assignment 2
+ * 
+ * This class handles the input from the file containing all valid words
+ * and stores them in a list. 
+ */
 import java.io.*;
 import java.util.*;
 

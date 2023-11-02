@@ -1,3 +1,10 @@
+/*
+ * Tanner Turba
+ * November 1, 2023
+ * CS 552 - Artificial Intelligence - Assignment 2
+ * 
+ * This class contains the argument processing and output for the program's results.
+ */
 import java.io.*;
 
 public class Solve {

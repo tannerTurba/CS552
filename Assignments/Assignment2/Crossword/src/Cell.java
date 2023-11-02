@@ -4,11 +4,20 @@ public class Cell {
     private int x;
     private int y;
 
+    /**
+     * Constructor for a cell with a location.
+     * @param x x-coordinate
+     * @param y y-coordinate
+     */
     public Cell(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Constructor for a cell with a value, but no location
+     * @param value the value the cell should hold
+     */
     public Cell(String value) {
         this.value = value;
     }
@@ -27,18 +36,30 @@ public class Cell {
         this.value = value;
     }
 
+    /**
+     * increment the number of assignments using this cell
+     */
     public void incrementCount() {
         count++;
     }
 
+    /**
+     * decrement the number of assignments using this cell
+     */
     public void decrementCount() {
         count--;
     }
 
+    /**
+     * @return the number of assignments using this cell
+     */
     public int getCount() {
         return count;
     }
 
+    /**
+     * @return the string representation
+     */
     public String toString() {
         return value;
     }

@@ -1,0 +1,180 @@
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 11ms (15 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 11ms (13 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs mrv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 11ms (10 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs mrv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 13ms (9 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 22ms (1039 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 11ms (10 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs mrv+deg
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 12ms (10 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vs mrv+deg -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 13ms (9 recursive calls)
+
+DEVELOP
+E E E R
+TORNADO
+R B T G
+ANOTHER
+C S E A
+THEOREM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vo lcv
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 12ms (18 recursive calls)
+
+DETRACT
+E O N H
+VERBOSE
+E N T O
+LEATHER
+O D E E
+PROGRAM
+
+===============================================================================
+shell$ java Solve -d ../a02-data/dictionary-small.txt -p ../a02-data/xword01.txt -v 1 -vo lcv -lfc
+* Reading dictionary from [../a02-data/dictionary-small.txt]
+* Reading puzzle from [../a02-data/xword01.txt]
+* CSP has 8 variables
+* CSP has 16 constraints
+* Attempting to solve crossword puzzle...
+
+SUCCESS! Solving took 14ms (13 recursive calls)
+
+DETRACT
+E O N H
+VERBOSE
+E N T O
+LEATHER
+O D E E
+PROGRAM
+
