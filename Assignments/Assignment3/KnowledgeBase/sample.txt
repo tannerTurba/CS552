@@ -1,0 +1,6 @@
+// This is a sample symbol:
+//( P ^ Q) => R
+//~(P v (Q <=> ~R))
+TelLC P v QUEEN v ~R
+TELLC TANNER v ME v MYSELF v I
+print
