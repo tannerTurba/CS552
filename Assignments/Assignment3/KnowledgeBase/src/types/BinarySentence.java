@@ -14,7 +14,7 @@ public class BinarySentence extends Sentence {
         this.s1 = s1;
         this.connector = connector;
         this.s2 = s2;
-        super.value = String.format("%s %s %s", s1, connector, s2);
+        super.symbol = new Symbol(String.format("%s %s %s", s1.toString(), connector.toString(), s2.toString()), false);
     }
 
     public UnarySentence getS1() {

@@ -8,18 +8,18 @@ public class UnarySentence extends Sentence {
         // Default constuctor - do nothing
     }
 
-    public UnarySentence(String val) {
+    public UnarySentence(String val, boolean isNegated) {
         super();
-        super.value = val;
+        super.symbol = new Symbol(val, isNegated);
     }
 
     public UnarySentence(Sentence sentence) {
         super();
-        super.value = '(' + sentence.getValue() + ')';
+        super.symbol = new Symbol('(' + sentence.toString() + ')', false);
     }
 
-    public UnarySentence negate() {
-        super.value = '~' + getValue();
-        return this;
+    public UnarySentence(Symbol symbol) {
+        super();
+        super.symbol = symbol;
     }
 }

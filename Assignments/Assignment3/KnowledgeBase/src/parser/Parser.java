@@ -46,12 +46,12 @@ public class Parser {
         Clause c = new Clause();
         while (!token.equals(Token.eolnTok)) {
             if (token.type() == TokenType.Symbol) {
-                c.add(new Symbol(token.value()));
+                c.add(new UnarySentence(token.value(), false).getSymbol());
             }
             else if (token.equals(Token.notTok)) {
                 token = lexer.next();
-                UnarySentence s = new UnarySentence(token.value()).negate();
-                c.add(s);
+                UnarySentence s = new UnarySentence(token.value(), true);
+                c.add(s.getSymbol());
             }
             token = lexer.next();
         }
@@ -105,18 +105,18 @@ public class Parser {
             token = lexer.next();
             UnarySentence unarySentence = getUnarySentence();
             token = lexer.next();
-            unarySentence.negate();
+            unarySentence.getSymbol().negate();
             return unarySentence;
         }
         else {
-            return getSymbol();
+            return new UnarySentence(getSymbol());
         }
     }
 
     // Symbol ::= P | Q | R ...
     public Symbol getSymbol() {
         String val = match(TokenType.Symbol);
-        return new Symbol(val);
+        return new Symbol(val, false);
     }
 
     // @SuppressWarnings("rawtypes")

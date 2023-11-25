@@ -2,13 +2,13 @@ package types;
 
 // Sentence ::= UnarySentence | BinarySentence
 abstract public class Sentence {
-    protected String value;
+    protected Symbol symbol;
 
-    public String getValue() {
-        return value;
+    public Symbol getSymbol() {
+        return symbol;
     }
 
     public String toString() {
-        return value;
+        return symbol.toString();
     }
 }

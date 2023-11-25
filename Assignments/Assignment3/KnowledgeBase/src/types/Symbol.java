@@ -1,9 +1,45 @@
 package types;
 
-public class Symbol extends UnarySentence {
-    
-    public Symbol(String val) {
+public class Symbol {
+    private boolean isNegated = false;
+    private String value;
+
+    public Symbol(String val, boolean isNegated) {
         super();
-        super.value = val;
+        this.value = val;
+        this.isNegated = isNegated;
+    }
+
+    // public void setNegate(boolean condi) {
+    //     isNegated = condi;
+    // }
+
+    public void negate() {
+        isNegated = !isNegated;
+    }
+
+    public Symbol asNegated() {
+        return new Symbol(value, !isNegated);
+    }
+
+    public boolean isNegated() {
+        return isNegated;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String toString() {
+        if (isNegated) {
+            return String.format("~%s", this.value);
+        }
+        else {
+            return this.value;
+        }
+    }
+
+    public boolean equals(Object s) {
+        return this.toString().equals(s.toString());
     }
 }

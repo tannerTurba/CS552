@@ -15,20 +15,31 @@ public class KBDriver {
             enterInteractiveMode();
         }
 
-        Clauses clauses = new Clauses();
+        Clauses kB = new Clauses();
         Parser parser = new Parser(new Lexer(args[0]));
         while (true) {
             String cmd = parser.getCommand();
     
             if (cmd.equalsIgnoreCase("tellc")) {
-                clauses.add(parser.getClause());
+                kB.add(parser.getClause());
+                // parser.consumeNextToken();
             }
             else if (cmd.equalsIgnoreCase("print")) {
-                System.out.println(clauses);
+                System.out.println(kB);
             }
             else if (cmd.equalsIgnoreCase("eof")) {
                 break;
             }
+            else if (cmd.equalsIgnoreCase("ask")) {
+                Sentence query = parser.getSentence();
+                if (PlResolution(kB, query.getSymbol())) {
+                    System.out.printf("Yes, KB entails %s\n", query.toString());
+                }
+                else {
+                    System.out.printf("No, KB does not entail %s\n", query.toString());
+                }
+            }
+            
         }
     }
 
@@ -68,5 +79,50 @@ public class KBDriver {
 
         // Close the scanner when done
         scanner.close();
+    }
+
+    public boolean PlResolution(Clauses kB, Symbol alpha) {
+        Clauses clauses = new Clauses(kB);
+        clauses.add(new Clause(alpha.asNegated()));
+        Clauses derived = new Clauses();
+        while (true) {
+            for (Clause c1 : clauses) {
+                for (Clause c2 : clauses) {
+                    Clause resolvents = PlResolve(c1, c2);
+                    if (resolvents.toString().equals("(__)")) {  // If contains the empty clause
+                        return true;
+                    }
+                    derived.add(resolvents);
+                }
+            }
+            if (clauses.contains(derived)) {
+                return false;
+            }
+            clauses.addAll(derived);
+        }
+    }
+
+    private Clause PlResolve(Clause c1, Clause c2) {
+        Clause bigC, smallC, result = new Clause();
+        if (c1.size() >= c2.size()) {
+            bigC = c1;
+            smallC = c2;
+        }
+        else {
+            bigC = c2;
+            smallC = c1;
+        }
+
+        for (Symbol s1 : bigC) {
+                Symbol negatedTemp = new Symbol(s1.getValue(), s1.isNegated());
+                negatedTemp.negate();
+                if (!smallC.contains(negatedTemp) && !result.contains(s1)) {
+                    result.add(s1);
+                }
+                else if (smallC.contains(negatedTemp)) {
+                    result.add(new Symbol("__", false));
+                }
+            }
+        return result;
     }
 }

@@ -16,7 +16,6 @@ public class Token {
     public static final Token andTok = new Token(TokenType.And, "^");
     public static final Token orTok = new Token(TokenType.Or, "v");
     public static final Token eolnTok = new Token(TokenType.EoLn, "\n");
-    public static final Token tellCTok = new Token(TokenType.TellC, "tellc");
 
     private TokenType type;
     private String value = "";

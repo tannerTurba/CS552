@@ -2,6 +2,7 @@ package types;
 
 import java.util.*;
 
+//Can be used as a CNFSentence.
 public class Clauses extends ArrayList<Clause>{
     public Clauses() {
         super();
@@ -22,5 +23,14 @@ public class Clauses extends ArrayList<Clause>{
             }
         }
         return sb.toString();
+    }
+
+    public boolean contains(Clauses set) {
+        for (Clause s : set) {
+            if (!this.contains(s)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

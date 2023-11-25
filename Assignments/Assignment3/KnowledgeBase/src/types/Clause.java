@@ -2,10 +2,20 @@ package types;
 
 import java.util.ArrayList;
 
-public class Clause extends ArrayList<UnarySentence>{
+public class Clause extends ArrayList<Symbol>{
 
     public Clause() {
         super();
+    }
+
+    public Clause(Sentence sentence) {
+        super();
+        this.add(sentence.getSymbol());
+    }
+
+    public Clause(Symbol symbol) {
+        super();
+        this.add(symbol);
     }
 
     public String toString() {
