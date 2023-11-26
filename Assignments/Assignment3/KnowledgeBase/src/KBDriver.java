@@ -4,6 +4,7 @@ import parser.*;
 import types.*;
 
 public class KBDriver {
+    private int proofIndex = 0;
 
     public static void main(String[] args) {
         System.out.println();
@@ -22,7 +23,6 @@ public class KBDriver {
     
             if (cmd.equalsIgnoreCase("tellc")) {
                 kB.add(parser.getClause());
-                // parser.consumeNextToken();
             }
             else if (cmd.equalsIgnoreCase("print")) {
                 System.out.println(kB);
@@ -32,14 +32,17 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("ask")) {
                 Sentence query = parser.getSentence();
-                if (PlResolution(kB, query.getSymbol())) {
+                if (PlResolution(kB, query.getSymbol(), false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
                 else {
                     System.out.printf("No, KB does not entail %s\n", query.toString());
                 }
             }
-            
+            else if (cmd.equalsIgnoreCase("proof")) {
+                Sentence query = parser.getSentence();
+                PlResolution(kB, query.getSymbol(), true);
+            }
         }
     }
 
@@ -81,15 +84,21 @@ public class KBDriver {
         scanner.close();
     }
 
-    public boolean PlResolution(Clauses kB, Symbol alpha) {
+    public boolean PlResolution(Clauses kB, Symbol alpha, boolean isProof) {
+        if (isProof) {
+            System.out.println("Proof:");
+            proofIndex = kB.getProof() + 1;
+            System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, alpha.asNegated());
+        }
+
         Clauses clauses = new Clauses(kB);
-        clauses.add(new Clause(alpha.asNegated()));
+        clauses.add(new Clause(alpha.asNegated(), proofIndex));
         Clauses derived = new Clauses();
         while (true) {
-            for (Clause c1 : clauses) {
-                for (Clause c2 : clauses) {
-                    Clause resolvents = PlResolve(c1, c2);
-                    if (resolvents.toString().equals("(__)")) {  // If contains the empty clause
+            for (int c1 = 0; c1 < clauses.size(); c1++) {
+                for (int c2 = 0; c2 < clauses.size(); c2++) {
+                    Clause resolvents = PlResolve(clauses, c1, c2, isProof);
+                    if (resolvents.size() == 0) {  // If contains the empty clause
                         return true;
                     }
                     derived.add(resolvents);
@@ -102,15 +111,15 @@ public class KBDriver {
         }
     }
 
-    private Clause PlResolve(Clause c1, Clause c2) {
+    private Clause PlResolve(Clauses clauses, int c1, int c2, boolean isProof) {
         Clause bigC, smallC, result = new Clause();
-        if (c1.size() >= c2.size()) {
-            bigC = c1;
-            smallC = c2;
+        if (clauses.get(c1).size() <= clauses.get(c2).size()) {
+            bigC = clauses.get(c1);
+            smallC = clauses.get(c2);
         }
         else {
-            bigC = c2;
-            smallC = c1;
+            bigC = clauses.get(c2);
+            smallC = clauses.get(c1);
         }
 
         for (Symbol s1 : bigC) {
@@ -118,11 +127,30 @@ public class KBDriver {
                 negatedTemp.negate();
                 if (!smallC.contains(negatedTemp) && !result.contains(s1)) {
                     result.add(s1);
+                    // proofIndex++;
+                    // System.out.printf("%d. %-15s [Resolution on %s: %d %d]\n", proofIndex, smallC.getClause(), s1.getValue(), c1 + 1, c2 + 1);
                 }
                 else if (smallC.contains(negatedTemp)) {
-                    result.add(new Symbol("__", false));
+                    proofIndex++;
+                    int oldIndex = smallC.getProofIndex();
+                    smallC.remove(negatedTemp);
+                    smallC.setProofIndex(proofIndex);
+
+                    if (isProof) {
+                        String clausePrint = "()";
+                        if (smallC.size() != 0) {
+                            clausePrint = smallC.getClause();
+                        }
+                        System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, s1.getValue(), oldIndex, bigC.getProofIndex());
+                    }
+                    // result.add(new Symbol("__", false));
+                    result.addAll(smallC);
                 }
             }
         return result;
+    }
+
+    public void ConvertToCNF(Sentence sentence) {
+        
     }
 }

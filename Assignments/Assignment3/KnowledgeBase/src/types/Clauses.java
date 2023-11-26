@@ -16,7 +16,7 @@ public class Clauses extends ArrayList<Clause>{
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size(); i++) {
             if (i + 1 != size()) {
-            sb.append(String.format("%s\n", get(i).toString()));
+                sb.append(String.format("%s\n", get(i).toString()));
             }
             else {
                 sb.append(get(i).toString());
@@ -32,5 +32,21 @@ public class Clauses extends ArrayList<Clause>{
             }
         }
         return true;
+    }
+
+    public int getProof() {
+        StringBuilder sb = new StringBuilder();
+        int i;
+        for (i = 0; i < size(); i++) {
+            get(i).setProofIndex(i+1);
+            if (i + 1 != size()) {
+                sb.append(String.format("%d. %-15s [Premise]\n", i+1, get(i).getClause()));
+            }
+            else {
+                sb.append(String.format("%d. %-15s [Premise]", i+1, get(i).getClause()));
+            }
+        }
+        System.out.println(sb.toString());
+        return i;
     }
 }
