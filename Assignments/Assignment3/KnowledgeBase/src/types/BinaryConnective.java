@@ -1,10 +1,10 @@
 package types;
 
 public class BinaryConnective {
-    public final static String AND = "^";
-    public final static String OR = "v";
-    public final static String IF = "=>";
-    public final static String IFF = "<=>";
+    public final static BinaryConnective AND = new BinaryConnective("^");
+    public final static BinaryConnective OR = new BinaryConnective("v");
+    public final static BinaryConnective IF = new BinaryConnective("=>");
+    public final static BinaryConnective IFF = new BinaryConnective("<=>");
     
     public String val;
     
@@ -23,21 +23,4 @@ public class BinaryConnective {
     public boolean equals(Object obj) { 
         return val.equals(obj);
     }
-    
-    public boolean AndOp() { 
-        return val.equals(AND); 
-    }
-
-    public boolean OrOp() {
-        return val.equals(OR);
-    }
-
-    public boolean IfOp() { 
-        return val.equals(IF);
-    }
-
-    public boolean IffOp() { 
-        return val.equals(IFF);
-    }
-    
 }

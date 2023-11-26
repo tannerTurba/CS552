@@ -3,12 +3,12 @@ package parser;
 import types.*;
 
 public class Parser {
-    Token token;          		// current token from the input stream
+    Token token;
     Lexer lexer;
 
-    public Parser(Lexer ts) { 	// Open the Clite source program
-        lexer = ts;           	// as a token stream, and
-        token = lexer.next(); 	// retrieve its first Token
+    public Parser(Lexer ts) {
+        lexer = ts;
+        token = lexer.next();
     }
 
     public String getCommand() {
@@ -35,23 +35,16 @@ public class Parser {
                            + "; saw: " + token);
         System.exit(1);
     }
-  
-    private void error(String tok) {
-        System.err.println("Syntax error: expecting: " + tok 
-                           + "; saw: " + token);
-        System.exit(1);
-    }
 
     public Clause getClause() {
         Clause c = new Clause();
         while (!token.equals(Token.eolnTok)) {
             if (token.type() == TokenType.Symbol) {
-                c.add(new UnarySentence(token.value(), false).getSymbol());
+                c.add(new Symbol(token.value(), false));
             }
             else if (token.equals(Token.notTok)) {
                 token = lexer.next();
-                UnarySentence s = new UnarySentence(token.value(), true);
-                c.add(s.getSymbol());
+                c.add(new Symbol(token.value(), true));
             }
             token = lexer.next();
         }
@@ -72,16 +65,16 @@ public class Parser {
         // Token token = lexer.next();
         BinaryConnective binaryConnector;
         if (token.equals(Token.andTok)) {
-            binaryConnector = new BinaryConnective("^");
+            binaryConnector = BinaryConnective.AND;
         }
         else if (token.equals(Token.orTok)) {
-            binaryConnector = new BinaryConnective("v");
+            binaryConnector = BinaryConnective.OR;
         }
         else if (token.equals(Token.ifTok)) {
-            binaryConnector = new BinaryConnective("=>");
+            binaryConnector = BinaryConnective.IF;
         }
         else if (token.equals(Token.iffTok)){
-            binaryConnector = new BinaryConnective("<=>");
+            binaryConnector = BinaryConnective.IFF;
         }
         else {
             return s1;
@@ -105,8 +98,8 @@ public class Parser {
             token = lexer.next();
             UnarySentence unarySentence = getUnarySentence();
             token = lexer.next();
-            unarySentence.getSymbol().negate();
-            return unarySentence;
+            // unarySentence.getSymbol().negate();
+            return new UnarySentence(unarySentence);
         }
         else {
             return new UnarySentence(getSymbol());
@@ -118,37 +111,4 @@ public class Parser {
         String val = match(TokenType.Symbol);
         return new Symbol(val, false);
     }
-
-    // @SuppressWarnings("rawtypes")
-	// private Value literal( ) {
-    //     String s = null;
-    //     switch (token.type()) {
-    //     case IntLiteral:        	
-    //         s = match(TokenType.IntLiteral);
-    //         return new Value<Integer>( Integer.parseInt(s) );
-    //     case True:
-    //         s = match(TokenType.True);
-    //         return new Value<Boolean>(true);
-    //     case False:
-    //         s = match(TokenType.False);
-    //         return new Value<Boolean>(false);
-    //     default:
-    //         throw new IllegalArgumentException( "error" );
-    //     }
-    // }
-    
-    private boolean isUnaryOp() {
-        return token.type().equals(TokenType.Not);
-    }
-    
-    // public static void main(String args[]) {
-    // 	String dir = "/Users/hunt/Dropbox/UWL/teaching/cs421/OtherMaterials/AuthorMaterials2/softwarestudents/clite/programs/";
-    // 	String file = dir +  "hunt-p2.cpp";
-    	
-    // 	Parser parser  = new Parser(new Lexer(file) );
-    //     Program prog = parser.program();
-    //     System.out.println(TypeChecker.isValid( prog ) );
-    //     System.out.println( prog );
-    // }
-
-} // Parser
+}

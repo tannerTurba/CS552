@@ -43,6 +43,10 @@ public class KBDriver {
                 Sentence query = parser.getSentence();
                 PlResolution(kB, query.getSymbol(), true);
             }
+            else if (cmd.equalsIgnoreCase("tell")) {
+                Sentence sentence = parser.getSentence();
+                System.out.println(sentence);
+            }
         }
     }
 
@@ -151,6 +155,65 @@ public class KBDriver {
     }
 
     public void ConvertToCNF(Sentence sentence) {
-        
+        if (sentence instanceof BinarySentence) {
+            BinarySentence binarySentence = (BinarySentence)sentence;
+            if (binarySentence.getConnective() == BinaryConnective.OR && ((BinarySentence)binarySentence.getS2().nestedSentence).getConnective() == BinaryConnective.AND) {
+                // a v (b ^ c) == (a v b) ^ (a v c)
+                UnarySentence a = binarySentence.getS1();
+                UnarySentence b = ((BinarySentence)binarySentence.getS2().nestedSentence).getS1();
+                UnarySentence c = ((BinarySentence)binarySentence.getS2().nestedSentence).getS2();
+
+                BinarySentence innerLeft = new BinarySentence(a, BinaryConnective.OR, b);
+                UnarySentence left = new UnarySentence(innerLeft);
+                BinarySentence innerRight = new BinarySentence(a, BinaryConnective.OR, c);
+                UnarySentence right = new UnarySentence(innerRight);
+                binarySentence = new BinarySentence(left, BinaryConnective.AND, right);
+            }
+            else if (binarySentence.getConnective() == BinaryConnective.IF) {
+                UnarySentence left = new UnarySentence(binarySentence.getS1());
+                UnarySentence right = binarySentence.getS2();
+                binarySentence = new BinarySentence(left, BinaryConnective.OR, right);
+            }
+            else if (binarySentence.getConnective() == BinaryConnective.IFF) {
+                BinarySentence s1 = new BinarySentence(binarySentence.getS1(), BinaryConnective.IF, binarySentence.getS2());
+                BinarySentence s2 = new BinarySentence(binarySentence.getS2(), BinaryConnective.IF, binarySentence.getS1());
+                UnarySentence left = new UnarySentence(s1);
+                UnarySentence right = new UnarySentence(s2);
+                binarySentence = new BinarySentence(left, BinaryConnective.AND, right);
+            }
+        }
+        else if (sentence instanceof UnarySentence) {
+            UnarySentence unarySentence = (UnarySentence)sentence;
+            if (unarySentence.isNegated) {
+                UnarySentence nestedUnary = unarySentence.nestedUnary;
+                if (nestedUnary.isNegated && nestedUnary.nestedSentence == null) {
+                    // Double Negation: ~ ~a == a 
+                    nestedUnary.isNegated = false;
+                    unarySentence = nestedUnary;
+                }
+                else if (nestedUnary.nestedSentence != null) {
+                    if (nestedUnary.nestedSentence instanceof BinarySentence) {
+                        BinarySentence nestedSentence = (BinarySentence)nestedUnary.nestedSentence;
+                        UnarySentence left = new UnarySentence(nestedSentence.getS1());
+                        UnarySentence right = new UnarySentence(nestedSentence.getS2());
+                        if (nestedSentence.getConnective() == BinaryConnective.AND) {
+                            // DeMorgan's Law: ~(a ^ b) == ~a v ~b
+                            nestedSentence = new BinarySentence(left, BinaryConnective.OR, right);
+                        }
+                        else if (nestedSentence.getConnective() == BinaryConnective.OR) {
+                            // DeMorgan's Law: ~(a v b) == ~a ^ ~b
+                            nestedSentence = new BinarySentence(left, BinaryConnective.AND, right);
+                        }
+                    }
+                    else if (nestedUnary.nestedSentence instanceof UnarySentence) {
+                        // Double Negation: ~(~a) == a
+                        UnarySentence nestedSentence = (UnarySentence)nestedUnary.nestedSentence;
+                        if (nestedSentence.isNegated) {
+                            nestedSentence = nestedSentence.nestedUnary;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
