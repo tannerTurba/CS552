@@ -141,14 +141,4 @@ public class Lexer {
 		System.err.println("Error: column " + col + " " + msg);
 		System.exit(1);
 	}
-
-	// static public void main ( String[] argv ) {
-	// 	Lexer lexer = new Lexer(argv[0]);
-	// 	Token tok = lexer.next( );
-	// 	while (tok != Token.eofTok) {
-	// 		System.out.println(tok.toString());
-	// 		tok = lexer.next( );
-	// 	} 
-	// } // main
-
 }

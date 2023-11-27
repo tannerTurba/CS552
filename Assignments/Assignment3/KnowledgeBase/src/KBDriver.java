@@ -53,6 +53,10 @@ public class KBDriver {
                 sentence = convertToCNF(sentence);
                 System.out.println(sentence);
             }
+            else if (cmd.equalsIgnoreCase("parse")) {
+                Sentence sentence = parser.getSentence();
+                parse(sentence);
+            }
         }
     }
 
@@ -252,5 +256,39 @@ public class KBDriver {
             }
         }
         return sentence;
+    }
+
+    private void parse(Sentence sentence) {
+        parse(sentence, "Orig", 0);
+    }
+
+    private void parse(Sentence sentence, String prefix, int indent) {
+        if (sentence instanceof BinarySentence) {
+            BinarySentence binary = (BinarySentence)sentence;
+            System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, binary.toString(), binary.getConnective().toString());
+
+            if (binary.getS1() instanceof UnarySentence) {
+                UnarySentence unary = (UnarySentence)binary.getS1();
+                parseUnary(unary, "LHS", indent);
+            }
+            if (binary.getS2() instanceof UnarySentence) {
+                UnarySentence unary = (UnarySentence)binary.getS2();
+                parseUnary(unary, "RHS", indent);
+            }
+        }
+    }
+
+    private void parseUnary(UnarySentence unary, String prefix, int indent) {
+        if (unary.nestedSentence == null && unary.nestedUnary == null) {
+            System.out.printf(" %s: [%s] Unary [symbol]: [%s]\n".indent(indent), prefix, unary, unary.getSymbol());
+        }
+        else if (unary.nestedSentence != null) {
+            System.out.printf(" %s: [%s] Unary [()]\n".indent(indent), prefix, unary);
+            parse(unary.nestedSentence, "Sub", indent+2);
+        }
+        else if (unary.isNegated) {
+            System.out.printf(" %s: [%s] Unary [~]\n".indent(indent), prefix, unary);
+            parseUnary(unary.nestedUnary, "Sub", indent+2);
+        }
     }
 }
