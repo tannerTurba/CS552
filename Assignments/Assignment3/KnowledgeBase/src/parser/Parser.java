@@ -97,8 +97,7 @@ public class Parser {
         else if (token.equals(Token.notTok)) {
             token = lexer.next();
             UnarySentence unarySentence = getUnarySentence();
-            token = lexer.next();
-            // unarySentence.getSymbol().negate();
+            // token = lexer.next();
             return new UnarySentence(unarySentence);
         }
         else {

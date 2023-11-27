@@ -47,6 +47,12 @@ public class KBDriver {
                 Sentence sentence = parser.getSentence();
                 System.out.println(sentence);
             }
+            else if (cmd.equalsIgnoreCase("cnf")) {
+                Sentence sentence = parser.getSentence();
+                System.out.println(sentence);
+                sentence = convertToCNF(sentence);
+                System.out.println(sentence);
+            }
         }
     }
 
@@ -154,66 +160,97 @@ public class KBDriver {
         return result;
     }
 
-    public void ConvertToCNF(Sentence sentence) {
+    public Sentence convertToCNF(Sentence sentence) {
+        Sentence result = eliminateIff(sentence);
+        result = eliminateIf(result);
+        result = eliminateNot(result);
+        return applyDistributivity(result);
+    }
+
+    private Sentence eliminateIff(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            if (binarySentence.getConnective() == BinaryConnective.OR && ((BinarySentence)binarySentence.getS2().nestedSentence).getConnective() == BinaryConnective.AND) {
-                // a v (b ^ c) == (a v b) ^ (a v c)
-                UnarySentence a = binarySentence.getS1();
-                UnarySentence b = ((BinarySentence)binarySentence.getS2().nestedSentence).getS1();
-                UnarySentence c = ((BinarySentence)binarySentence.getS2().nestedSentence).getS2();
-
-                BinarySentence innerLeft = new BinarySentence(a, BinaryConnective.OR, b);
-                UnarySentence left = new UnarySentence(innerLeft);
-                BinarySentence innerRight = new BinarySentence(a, BinaryConnective.OR, c);
-                UnarySentence right = new UnarySentence(innerRight);
-                binarySentence = new BinarySentence(left, BinaryConnective.AND, right);
-            }
-            else if (binarySentence.getConnective() == BinaryConnective.IF) {
-                UnarySentence left = new UnarySentence(binarySentence.getS1());
-                UnarySentence right = binarySentence.getS2();
-                binarySentence = new BinarySentence(left, BinaryConnective.OR, right);
-            }
-            else if (binarySentence.getConnective() == BinaryConnective.IFF) {
-                BinarySentence s1 = new BinarySentence(binarySentence.getS1(), BinaryConnective.IF, binarySentence.getS2());
-                BinarySentence s2 = new BinarySentence(binarySentence.getS2(), BinaryConnective.IF, binarySentence.getS1());
+            if (binarySentence.getConnective() == BinaryConnective.IFF) {
+                UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getS1());
+                UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getS2());
+                BinarySentence s1 = new BinarySentence(u1, BinaryConnective.IF, u2);
+                BinarySentence s2 = new BinarySentence(u2, BinaryConnective.IF, u1);
                 UnarySentence left = new UnarySentence(s1);
                 UnarySentence right = new UnarySentence(s2);
-                binarySentence = new BinarySentence(left, BinaryConnective.AND, right);
+                return new BinarySentence(left, BinaryConnective.AND, right);
             }
         }
-        else if (sentence instanceof UnarySentence) {
+        return sentence;
+    }
+
+    private Sentence eliminateIf(Sentence sentence) {
+        if (sentence instanceof BinarySentence) {
+            BinarySentence binarySentence = (BinarySentence)sentence;
+            if (binarySentence.getConnective() == BinaryConnective.IF) {
+                UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getS1());
+                UnarySentence left = new UnarySentence(u1);
+                UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getS2());
+                return new BinarySentence(left, BinaryConnective.OR, right);
+            }
+        }
+        return sentence;
+    }
+
+    private Sentence eliminateNot(Sentence sentence) {
+        if (sentence instanceof UnarySentence) {
             UnarySentence unarySentence = (UnarySentence)sentence;
             if (unarySentence.isNegated) {
                 UnarySentence nestedUnary = unarySentence.nestedUnary;
                 if (nestedUnary.isNegated && nestedUnary.nestedSentence == null) {
                     // Double Negation: ~ ~a == a 
                     nestedUnary.isNegated = false;
-                    unarySentence = nestedUnary;
+                    return eliminateNot(nestedUnary);
                 }
                 else if (nestedUnary.nestedSentence != null) {
                     if (nestedUnary.nestedSentence instanceof BinarySentence) {
                         BinarySentence nestedSentence = (BinarySentence)nestedUnary.nestedSentence;
-                        UnarySentence left = new UnarySentence(nestedSentence.getS1());
-                        UnarySentence right = new UnarySentence(nestedSentence.getS2());
+                        UnarySentence left = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS1()));
+                        UnarySentence right = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS2()));
                         if (nestedSentence.getConnective() == BinaryConnective.AND) {
                             // DeMorgan's Law: ~(a ^ b) == ~a v ~b
-                            nestedSentence = new BinarySentence(left, BinaryConnective.OR, right);
+                            return new BinarySentence(left, BinaryConnective.OR, right);
                         }
                         else if (nestedSentence.getConnective() == BinaryConnective.OR) {
                             // DeMorgan's Law: ~(a v b) == ~a ^ ~b
-                            nestedSentence = new BinarySentence(left, BinaryConnective.AND, right);
+                            return new BinarySentence(left, BinaryConnective.AND, right);
                         }
                     }
                     else if (nestedUnary.nestedSentence instanceof UnarySentence) {
                         // Double Negation: ~(~a) == a
                         UnarySentence nestedSentence = (UnarySentence)nestedUnary.nestedSentence;
                         if (nestedSentence.isNegated) {
-                            nestedSentence = nestedSentence.nestedUnary;
+                            return eliminateNot(nestedSentence.nestedUnary);
                         }
                     }
                 }
             }
         }
+        return sentence;
+    }
+
+    private Sentence applyDistributivity(Sentence sentence) {
+        if (sentence instanceof BinarySentence) {
+            BinarySentence binarySentence = (BinarySentence)sentence;
+            if (binarySentence.getConnective() == BinaryConnective.OR && (BinarySentence)binarySentence.getS2().nestedSentence != null) {
+                if (((BinarySentence)binarySentence.getS2().nestedSentence).getConnective() == BinaryConnective.AND) {
+                    // a v (b ^ c) == (a v b) ^ (a v c)
+                    UnarySentence a = (UnarySentence)applyDistributivity(binarySentence.getS1());
+                    UnarySentence b = (UnarySentence)applyDistributivity(((BinarySentence)binarySentence.getS2().nestedSentence).getS1());
+                    UnarySentence c = (UnarySentence)applyDistributivity(((BinarySentence)binarySentence.getS2().nestedSentence).getS2());
+    
+                    BinarySentence innerLeft = new BinarySentence(a, BinaryConnective.OR, b);
+                    UnarySentence left = new UnarySentence(innerLeft);
+                    BinarySentence innerRight = new BinarySentence(a, BinaryConnective.OR, c);
+                    UnarySentence right = new UnarySentence(innerRight);
+                    return new BinarySentence(left, BinaryConnective.AND, right);
+                }
+            }
+        }
+        return sentence;
     }
 }
