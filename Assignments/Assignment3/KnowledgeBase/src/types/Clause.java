@@ -3,6 +3,7 @@ package types;
 import java.util.ArrayList;
 
 public class Clause extends ArrayList<Symbol> {
+    public static Clause EMPTY = new Clause();
     private int proofIndex;
 
     public Clause() {

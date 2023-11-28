@@ -11,4 +11,6 @@ abstract public class Sentence {
     public String toString() {
         return symbol.toString();
     }
+
+    // public abstract Symbol asNegated();
 }

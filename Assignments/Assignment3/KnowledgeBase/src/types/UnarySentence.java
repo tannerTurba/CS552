@@ -42,4 +42,8 @@ public class UnarySentence extends Sentence {
     public boolean isSymbol() {
         return !isNegated && nestedSentence == null && nestedUnary == null;
     }
+
+    public boolean isLiteral() {
+        return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null;
+    }
 }

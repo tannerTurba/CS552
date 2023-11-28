@@ -33,7 +33,10 @@ public class KBDriver {
             else if (cmd.equalsIgnoreCase("ask")) {
                 Sentence query = parser.getSentence();
                 query = convertToCNF(query);
-                if (PlResolution(kB, query.getSymbol(), false)) {
+                // Clauses searchClauses = new Clauses();
+                // deriveClauses(searchClauses, query);
+
+                if (PlResolution(kB, query, false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
                 else {
@@ -42,17 +45,19 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("proof")) {
                 Sentence query = parser.getSentence();
-                if (!PlResolution(kB, query.getSymbol(), false)) {
+                query = new UnarySentence(new UnarySentence(query));
+                query = convertToCNF(query);
+                if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
                 }
                 else {
-                    PlResolution(kB, query.getSymbol(), true);
+                    PlResolution(kB, query, true);
                 }
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
                 sentence = convertToCNF(sentence);
-                kB.add(new Clause(sentence));
+                deriveClauses(kB, sentence);
             }
             else if (cmd.equalsIgnoreCase("cnf")) {
                 Sentence sentence = parser.getSentence();
@@ -104,15 +109,15 @@ public class KBDriver {
         scanner.close();
     }
 
-    public boolean PlResolution(Clauses kB, Symbol alpha, boolean isProof) {
+    public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
         if (isProof) {
             System.out.println("Proof:");
             proofIndex = kB.getProof() + 1;
-            System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, alpha.asNegated());
+            System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, alpha.getSymbol());
         }
 
         Clauses clauses = new Clauses(kB);
-        clauses.add(new Clause(alpha.asNegated(), proofIndex));
+        clauses.add(new Clause(alpha.getSymbol(), proofIndex));
         Clauses derived = new Clauses();
         while (true) {
             for (int c1 = 0; c1 < clauses.size(); c1++) {
@@ -143,8 +148,7 @@ public class KBDriver {
         }
 
         for (Symbol s1 : bigC) {
-                Symbol negatedTemp = new Symbol(s1.getValue(), s1.isNegated());
-                negatedTemp.negate();
+                Symbol negatedTemp = new Symbol(s1.getValue(), !s1.isNegated());
                 if (!smallC.contains(negatedTemp) && !result.contains(s1)) {
                     result.add(s1);
                 }
@@ -171,7 +175,8 @@ public class KBDriver {
         Sentence result = eliminateIff(sentence);
         result = eliminateIf(result);
         result = eliminateNot(result, false);
-        return applyDistributivity(result);
+        result = applyDistributivity(result);
+        return result;
     }
 
     private Sentence eliminateIff(Sentence sentence) {
@@ -367,5 +372,49 @@ public class KBDriver {
             System.out.printf(" %s: [%s] Unary [~]\n".indent(indent), prefix, unary);
             parseUnary(unary.nestedUnary, "Sub", indent+2);
         }
+    }
+
+    private Clause deriveClauses(Clauses kB, Sentence sentence) {
+        Clause result = new Clause();
+        if (sentence instanceof BinarySentence) {
+            BinarySentence binary = (BinarySentence)sentence;
+            UnarySentence left = (UnarySentence)binary.getS1();
+            UnarySentence right = (UnarySentence)binary.getS2();
+
+            if (binary.getConnective() == BinaryConnective.AND) {
+                Clause fromLeft = deriveClauses(kB, left);
+                Clause fromRight = deriveClauses(kB, right);
+                if (fromLeft.size() != 0) {
+                    kB.add(fromLeft);
+                }
+                if (fromRight.size() != 0) {
+                    kB.add(fromRight);
+                }
+                return Clause.EMPTY;
+            }
+
+            if (left.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
+                result.add(left.getSymbol());
+            }
+            else {
+                result.addAll(deriveClauses(kB, left));
+            }
+            if (right.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
+                result.add(right.getSymbol());
+            }
+            else {
+                result.addAll(deriveClauses(kB, right));
+            }
+        }
+        else if (sentence instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)sentence;
+            if (unary.nestedSentence != null) {
+                return deriveClauses(kB, unary.nestedSentence);
+            }
+            if (unary.isLiteral()) {
+                kB.add(new Clause(unary));
+            }
+        }
+        return result;
     }
 }

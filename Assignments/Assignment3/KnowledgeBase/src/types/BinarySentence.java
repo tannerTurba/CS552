@@ -28,4 +28,9 @@ public class BinarySentence extends Sentence {
     public UnarySentence getS2() {
         return s2;
     }
+
+    // @Override
+    // public Symbol asNegated() {
+        
+    // }
 }
