@@ -32,6 +32,7 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("ask")) {
                 Sentence query = parser.getSentence();
+                query = convertToCNF(query);
                 if (PlResolution(kB, query.getSymbol(), false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
@@ -50,11 +51,11 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
-                System.out.println(sentence);
+                sentence = convertToCNF(sentence);
+                kB.add(new Clause(sentence));
             }
             else if (cmd.equalsIgnoreCase("cnf")) {
                 Sentence sentence = parser.getSentence();
-                System.out.println(sentence);
                 sentence = convertToCNF(sentence);
                 System.out.println(sentence);
             }
@@ -169,21 +170,29 @@ public class KBDriver {
     public Sentence convertToCNF(Sentence sentence) {
         Sentence result = eliminateIff(sentence);
         result = eliminateIf(result);
-        result = eliminateNot(result);
+        result = eliminateNot(result, false);
         return applyDistributivity(result);
     }
 
     private Sentence eliminateIff(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
+            UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getS1());
+            UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getS2());
             if (binarySentence.getConnective() == BinaryConnective.IFF) {
-                UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getS1());
-                UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getS2());
                 BinarySentence s1 = new BinarySentence(u1, BinaryConnective.IF, u2);
                 BinarySentence s2 = new BinarySentence(u2, BinaryConnective.IF, u1);
                 UnarySentence left = new UnarySentence(s1);
                 UnarySentence right = new UnarySentence(s2);
                 return new BinarySentence(left, BinaryConnective.AND, right);
+            }
+            return new BinarySentence(u1, binarySentence.getConnective(), u2);
+        }
+        else if (sentence instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)sentence;
+            if (unary.nestedSentence != null) {
+                unary.setNestedSentence(eliminateIff(unary.nestedSentence));
+                return unary;
             }
         }
         return sentence;
@@ -192,31 +201,53 @@ public class KBDriver {
     private Sentence eliminateIf(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
+            UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getS1());
+            UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getS2());
+            BinaryConnective connective = binarySentence.getConnective();
             if (binarySentence.getConnective() == BinaryConnective.IF) {
-                UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getS1());
                 UnarySentence left = new UnarySentence(u1);
-                UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getS2());
                 return new BinarySentence(left, BinaryConnective.OR, right);
+            }
+            return new BinarySentence(u1, connective, right);
+        }
+        else if (sentence instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)sentence;
+            if (unary.nestedSentence != null) {
+                unary.setNestedSentence(eliminateIf(unary.nestedSentence));
+                return unary;
             }
         }
         return sentence;
     }
 
-    private Sentence eliminateNot(Sentence sentence) {
+    private Sentence eliminateNot(Sentence sentence, boolean outterIsNegated) {
         if (sentence instanceof UnarySentence) {
             UnarySentence unarySentence = (UnarySentence)sentence;
             if (unarySentence.isNegated) {
+                if (unarySentence.nestedUnary.nestedSentence != null) {
+                    unarySentence.setNestedSentence(eliminateNot(unarySentence.nestedUnary.nestedSentence, true));
+                }
+                if (unarySentence.nestedUnary.isSymbol()) {
+                    if (outterIsNegated) {
+                        // Double Negation: ~(~a) == a
+                        return new UnarySentence(unarySentence.nestedUnary.getSymbol());
+                    }
+                    else {
+                        return unarySentence;
+                    }
+                }
+
                 UnarySentence nestedUnary = unarySentence.nestedUnary;
                 if (nestedUnary.isNegated && nestedUnary.nestedSentence == null) {
                     // Double Negation: ~ ~a == a 
                     nestedUnary.isNegated = false;
-                    return eliminateNot(nestedUnary);
+                    return eliminateNot(nestedUnary, true);
                 }
                 else if (nestedUnary.nestedSentence != null) {
                     if (nestedUnary.nestedSentence instanceof BinarySentence) {
                         BinarySentence nestedSentence = (BinarySentence)nestedUnary.nestedSentence;
-                        UnarySentence left = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS1()));
-                        UnarySentence right = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS2()));
+                        UnarySentence left = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS1()), outterIsNegated);
+                        UnarySentence right = (UnarySentence)eliminateNot(new UnarySentence(nestedSentence.getS2()), outterIsNegated);
                         if (nestedSentence.getConnective() == BinaryConnective.AND) {
                             // DeMorgan's Law: ~(a ^ b) == ~a v ~b
                             return new BinarySentence(left, BinaryConnective.OR, right);
@@ -226,15 +257,35 @@ public class KBDriver {
                             return new BinarySentence(left, BinaryConnective.AND, right);
                         }
                     }
-                    else if (nestedUnary.nestedSentence instanceof UnarySentence) {
-                        // Double Negation: ~(~a) == a
-                        UnarySentence nestedSentence = (UnarySentence)nestedUnary.nestedSentence;
-                        if (nestedSentence.isNegated) {
-                            return eliminateNot(nestedSentence.nestedUnary);
-                        }
-                    }
                 }
             }
+            if (unarySentence.isSymbol()) {
+                return unarySentence;
+            }
+            else if (unarySentence.nestedSentence != null) {
+                return eliminateNot(unarySentence.nestedSentence, outterIsNegated);
+            }
+        }
+        else if (sentence instanceof BinarySentence) {
+            BinarySentence binary = (BinarySentence)sentence;
+            Sentence s1 = eliminateNot(binary.getS1(), outterIsNegated);
+            Sentence s2 = eliminateNot(binary.getS2(), outterIsNegated);
+
+            UnarySentence left, right;
+            if (s1 instanceof UnarySentence) {
+                left = (UnarySentence)s1;
+            }
+            else {
+                left = new UnarySentence(s1);
+            }
+
+            if (s2 instanceof UnarySentence) {
+                right = (UnarySentence)s2;
+            }
+            else {
+                right = new UnarySentence(s2);
+            }
+            return new BinarySentence(left, binary.getConnective(), right);
         }
         return sentence;
     }
@@ -242,12 +293,26 @@ public class KBDriver {
     private Sentence applyDistributivity(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            if (binarySentence.getConnective() == BinaryConnective.OR && (BinarySentence)binarySentence.getS2().nestedSentence != null) {
-                if (((BinarySentence)binarySentence.getS2().nestedSentence).getConnective() == BinaryConnective.AND) {
+            if (binarySentence.getConnective() == BinaryConnective.OR) {
+                UnarySentence s1 = binarySentence.getS1();
+                UnarySentence s2 = binarySentence.getS2();
+                if ((BinarySentence)s1.nestedSentence != null && ((BinarySentence)s1.nestedSentence).getConnective() == BinaryConnective.AND) {
+                    //(a ^ b) v c == (a v c) ^ (b v c)
+                    UnarySentence a = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getS1());
+                    UnarySentence b = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getS2());
+                    UnarySentence c = (UnarySentence)applyDistributivity(s2);
+
+                    BinarySentence innerLeft = new BinarySentence(a, BinaryConnective.OR, c);
+                    UnarySentence left = new UnarySentence(innerLeft);
+                    BinarySentence innerRight = new BinarySentence(b, BinaryConnective.OR, c);
+                    UnarySentence right = new UnarySentence(innerRight);
+                    return new BinarySentence(left, BinaryConnective.AND, right);
+                }
+                else if ((BinarySentence)s2.nestedSentence != null && ((BinarySentence)s2.nestedSentence).getConnective() == BinaryConnective.AND) {
                     // a v (b ^ c) == (a v b) ^ (a v c)
-                    UnarySentence a = (UnarySentence)applyDistributivity(binarySentence.getS1());
-                    UnarySentence b = (UnarySentence)applyDistributivity(((BinarySentence)binarySentence.getS2().nestedSentence).getS1());
-                    UnarySentence c = (UnarySentence)applyDistributivity(((BinarySentence)binarySentence.getS2().nestedSentence).getS2());
+                    UnarySentence a = (UnarySentence)applyDistributivity(s1);
+                    UnarySentence b = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getS1());
+                    UnarySentence c = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getS2());
     
                     BinarySentence innerLeft = new BinarySentence(a, BinaryConnective.OR, b);
                     UnarySentence left = new UnarySentence(innerLeft);
@@ -255,6 +320,16 @@ public class KBDriver {
                     UnarySentence right = new UnarySentence(innerRight);
                     return new BinarySentence(left, BinaryConnective.AND, right);
                 }
+            }
+            UnarySentence left = (UnarySentence)applyDistributivity(binarySentence.getS1());
+            UnarySentence right = (UnarySentence)applyDistributivity(binarySentence.getS2());
+            return new BinarySentence(left, binarySentence.getConnective(), right);
+        }
+        else if (sentence instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)sentence;
+            if (unary.nestedSentence != null) {
+                unary.setNestedSentence(applyDistributivity(unary.nestedSentence));
+                return unary;
             }
         }
         return sentence;

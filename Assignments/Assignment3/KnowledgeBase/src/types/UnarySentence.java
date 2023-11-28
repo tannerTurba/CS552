@@ -33,4 +33,13 @@ public class UnarySentence extends Sentence {
         super.symbol = symbol;
         this.isNegated = false;
     }
+
+    public void setNestedSentence(Sentence sentence) {
+        nestedSentence = sentence;
+        super.symbol = new Symbol('(' + nestedSentence.toString() + ')', isNegated);
+    }
+
+    public boolean isSymbol() {
+        return !isNegated && nestedSentence == null && nestedUnary == null;
+    }
 }
