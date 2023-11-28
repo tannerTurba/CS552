@@ -41,7 +41,12 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("proof")) {
                 Sentence query = parser.getSentence();
-                PlResolution(kB, query.getSymbol(), true);
+                if (!PlResolution(kB, query.getSymbol(), false)) {
+                    System.out.println("No proof exists");
+                }
+                else {
+                    PlResolution(kB, query.getSymbol(), true);
+                }
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
@@ -141,8 +146,6 @@ public class KBDriver {
                 negatedTemp.negate();
                 if (!smallC.contains(negatedTemp) && !result.contains(s1)) {
                     result.add(s1);
-                    // proofIndex++;
-                    // System.out.printf("%d. %-15s [Resolution on %s: %d %d]\n", proofIndex, smallC.getClause(), s1.getValue(), c1 + 1, c2 + 1);
                 }
                 else if (smallC.contains(negatedTemp)) {
                     proofIndex++;
@@ -157,7 +160,6 @@ public class KBDriver {
                         }
                         System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, s1.getValue(), oldIndex, bigC.getProofIndex());
                     }
-                    // result.add(new Symbol("__", false));
                     result.addAll(smallC);
                 }
             }

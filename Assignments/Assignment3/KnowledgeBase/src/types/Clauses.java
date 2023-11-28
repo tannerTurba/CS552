@@ -9,7 +9,10 @@ public class Clauses extends ArrayList<Clause>{
     }
 
     public Clauses(Clauses clausesToAdd) {
-        super(clausesToAdd);
+        super();
+        for (Clause c : clausesToAdd) {
+            add(new Clause(c));
+        }
     }
 
     public String toString() {

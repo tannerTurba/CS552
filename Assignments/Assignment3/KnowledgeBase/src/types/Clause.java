@@ -9,6 +9,12 @@ public class Clause extends ArrayList<Symbol> {
         super();
     }
 
+    public Clause(Clause clause) {
+        super();
+        this.addAll(clause);
+        this.proofIndex = clause.getProofIndex();
+    }
+
     public Clause(Sentence sentence) {
         super();
         this.add(sentence.getSymbol());
