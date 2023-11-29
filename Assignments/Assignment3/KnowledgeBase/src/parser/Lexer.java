@@ -3,7 +3,6 @@ package parser;
 import java.io.*;
 
 public class Lexer {
-
 	@SuppressWarnings("unused")
 	private boolean isEof = false;
 	private char ch = ' '; 
@@ -17,14 +16,25 @@ public class Lexer {
 	private final char eolnCh = '\n';
 	private final char eofCh = '\004';
 
-
-	public Lexer(String fileName) { // source filename
+	public Lexer(String fileName) {
 		try {
-			input = new BufferedReader (new FileReader(fileName));
+			input = new BufferedReader(new FileReader(fileName));
 		}
 		catch (FileNotFoundException e) {
 			System.out.println("File not found: " + fileName);
 			System.exit(1);
+		}
+	}
+
+	public Lexer() {
+		input = new BufferedReader(new InputStreamReader(System.in));
+	}
+
+	public void close() {
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

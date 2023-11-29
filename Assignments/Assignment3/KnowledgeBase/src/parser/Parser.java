@@ -11,6 +11,10 @@ public class Parser {
         token = lexer.next();
     }
 
+    public void close() {
+        lexer.close();
+    }
+
     public String getCommand() {
         if (token.equals(Token.eofTok)) {
             return "EOF";

@@ -1,5 +1,3 @@
-import java.util.*;
-
 import parser.*;
 import types.*;
 
@@ -12,13 +10,30 @@ public class KBDriver {
     }
 
     public KBDriver(String[] args) {
-        if (args.length == 0) {
-            enterInteractiveMode();
+        String fileName;
+        if (args.length > 0) {
+            fileName = args[0];
+        }
+        else {
+            fileName = null;
+        }
+        
+        Parser parser;
+        if (fileName != null) {
+            parser = new Parser(new Lexer(fileName));
+        }
+        else {
+            parser = new Parser(new Lexer());
+            System.out.println("Welcome to the Knowledge Base!");
+            System.out.println("Please TELL or ASK me anything!");
+            System.out.println("(type HELP for more information)");
         }
 
         Clauses kB = new Clauses();
-        Parser parser = new Parser(new Lexer(args[0]));
         while (true) {
+            if (fileName == null) {
+                System.out.print("> ");
+            }
             String cmd = parser.getCommand();
     
             if (cmd.equalsIgnoreCase("tellc")) {
@@ -52,6 +67,7 @@ public class KBDriver {
                 else {
                     PlResolution(kB, query, true);
                 }
+                System.out.println();
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
@@ -67,25 +83,11 @@ public class KBDriver {
                 Sentence sentence = parser.getSentence();
                 parse(sentence);
             }
-        }
-    }
-
-    private void enterInteractiveMode() {
-        System.out.println("Welcome to the Knowledge Base!");
-        System.out.println("Please TELL or ASK me anything!");
-        System.out.println("(type HELP for more information)");
-        
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("> ");
-            String input = scanner.nextLine();
-            String command = input.split(" ")[0];
-
-            if (command.equalsIgnoreCase("exit") || command.equalsIgnoreCase("done") || command.equalsIgnoreCase("quit")) {
+            else if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("done") || cmd.equalsIgnoreCase("quit")) {
                 System.out.println("Thank you for using the Knowledge Base!");
                 break;
             }
-            else if (command.equalsIgnoreCase("help")) {
+            else if (cmd.equalsIgnoreCase("help")) {
                 String help = """
                         * DONE, EXIT, QUIT  : Terminates the session.
                         * TELLC <clause>    : Adds the given <clause> to the knowledge base.
@@ -98,14 +100,8 @@ public class KBDriver {
                         """;
                 System.out.println(help);
             }
-            else {
-                System.out.printf("%s is not a recognized command\n", command);
-            }
-
         }
-
-        // Close the scanner when done
-        scanner.close();
+        parser.close();
     }
 
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
