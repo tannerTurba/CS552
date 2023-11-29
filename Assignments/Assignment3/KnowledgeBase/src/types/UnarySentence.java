@@ -39,11 +39,16 @@ public class UnarySentence extends Sentence {
         super.symbol = new Symbol('(' + nestedSentence.toString() + ')', isNegated);
     }
 
+    public void setNestedUnary(UnarySentence sentence) {
+        nestedUnary = sentence;
+        super.symbol = new Symbol(nestedUnary.toString(), isNegated);
+    }
+
     public boolean isSymbol() {
         return !isNegated && nestedSentence == null && nestedUnary == null;
     }
 
     public boolean isLiteral() {
-        return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null;
+        return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null && nestedUnary.nestedSentence == null;
     }
 }
