@@ -45,8 +45,7 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("proof")) {
                 Sentence query = parser.getSentence();
-                query = new UnarySentence(new UnarySentence(query));
-                query = convertToCNF(query);
+                
                 if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
                 }
@@ -110,6 +109,8 @@ public class KBDriver {
     }
 
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
+        alpha = new UnarySentence(new UnarySentence(alpha));
+        alpha = convertToCNF(alpha);
         if (isProof) {
             System.out.println("Proof:");
             proofIndex = kB.getProof() + 1;
@@ -123,7 +124,7 @@ public class KBDriver {
             for (int c1 = 0; c1 < clauses.size(); c1++) {
                 for (int c2 = 0; c2 < clauses.size(); c2++) {
                     Clause resolvents = PlResolve(clauses, c1, c2, isProof);
-                    if (resolvents.size() == 0) {  // If contains the empty clause
+                    if (resolvents.size() == 0) {
                         return true;
                     }
                     derived.add(resolvents);
@@ -262,10 +263,18 @@ public class KBDriver {
                             return new BinarySentence(left, BinaryConnective.AND, right);
                         }
                     }
+                    else if (nestedUnary.nestedSentence instanceof UnarySentence) {
+                        UnarySentence nestedSentence = (UnarySentence)nestedUnary.nestedSentence;
+                        return eliminateNot(nestedSentence, unarySentence.isNegated);
+                    }
                 }
             }
-            if (unarySentence.isSymbol()) {
+            if (unarySentence.isSymbol() && outterIsNegated && unarySentence.isNegated) {
                 return unarySentence;
+            }
+            else if (unarySentence.isSymbol() && outterIsNegated && !unarySentence.isNegated) {
+                Symbol symbol = new Symbol(unarySentence.getSymbol().toString(), true);
+                return new UnarySentence(symbol);
             }
             else if (unarySentence.nestedSentence != null) {
                 return eliminateNot(unarySentence.nestedSentence, outterIsNegated);
