@@ -13,8 +13,10 @@ public class Lexer {
 	private int col = 1;
 	private final String letters = "abcdefghijklmnopqrstuwxyz" + "ABCDEFGHIJKLMNOPQRSTUWXYZ";
 	private final String digits = "0123456789";
+	private final String specialChars = "vV<>=()^~#";
 	private final char eolnCh = '\n';
 	private final char eofCh = '\004';
+	private boolean isSpaceDelimited = true;
 
 	public Lexer(String fileName) {
 		try {
@@ -70,14 +72,15 @@ public class Lexer {
 			}
             else {
 				switch (ch) {			
-					case ' ': case '\t': case '\r':
+					case '\u0020': case '\t': case '\r':
 						ch = nextChar();
 						break;
-					case '/':  // comment
+					case '#':  // comment
 						ch = nextChar();
 						do {
 							ch = nextChar();
 						} while (ch != eolnCh);
+						isSpaceDelimited = true;
 						ch = nextChar();
 						break;
 					case eolnCh:
@@ -139,11 +142,28 @@ public class Lexer {
 
 	private String concat(String set) {
 		String r = "";
-		do {
-			r += ch;
-			ch = nextChar();
-		} while (set.indexOf(ch) >= 0);
+		if (isSpaceDelimited) {
+			do {
+				r += ch;
+				ch = nextChar();
+			} while (set.indexOf(ch) >= 0);
+		}
+		else {
+			do {
+				if (set.indexOf(ch) >= 0) {
+					r += ch;
+					ch = nextChar();
+				}
+				else {
+					ch = nextChar();
+				}
+			} while (specialChars.indexOf(ch) < 0 && ch != eofCh && ch != eolnCh);
+		}
 		return r;
+	}
+
+	public void setSpaceDelimited(boolean isSpaceDelimited) {
+		this.isSpaceDelimited = isSpaceDelimited;
 	}
 
 	public void error (String msg) {

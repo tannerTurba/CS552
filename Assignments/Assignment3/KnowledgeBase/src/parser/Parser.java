@@ -19,7 +19,11 @@ public class Parser {
         if (token.equals(Token.eofTok)) {
             return "EOF";
         }
+        while (token.equals(Token.eolnTok)) {
+            token = lexer.next();
+        }
         String cmd = token.value();
+        lexer.setSpaceDelimited(false);
         token = lexer.next();
         return cmd;
     }
@@ -52,12 +56,14 @@ public class Parser {
             }
             token = lexer.next();
         }
+        lexer.setSpaceDelimited(true);
         return c;
     }
   
     // Sentence ::= UnarySentence | BinarySentence
     public Sentence getSentence() {
         Sentence s = getBinarySentence();
+        lexer.setSpaceDelimited(true);
         token = lexer.next(); //consume newline
         return s;
     }

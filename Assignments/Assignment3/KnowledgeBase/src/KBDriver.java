@@ -60,6 +60,7 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("proof")) {
                 Sentence query = parser.getSentence();
+                query = convertToCNF(query);
                 
                 if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
@@ -67,7 +68,6 @@ public class KBDriver {
                 else {
                     PlResolution(kB, query, true);
                 }
-                System.out.println();
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
@@ -77,7 +77,9 @@ public class KBDriver {
             else if (cmd.equalsIgnoreCase("cnf")) {
                 Sentence sentence = parser.getSentence();
                 sentence = convertToCNF(sentence);
-                System.out.println(sentence);
+                Clauses x = new Clauses();
+                deriveClauses(x, sentence);
+                System.out.println(x);
             }
             else if (cmd.equalsIgnoreCase("parse")) {
                 Sentence sentence = parser.getSentence();
@@ -391,7 +393,14 @@ public class KBDriver {
         }
     }
 
-    private Clause deriveClauses(Clauses kB, Sentence sentence) {
+    private void deriveClauses(Clauses kB, Sentence sentence) {
+        Clause c = getClauses(kB, sentence);
+        if (c.size() > 0) {
+            kB.add(c);
+        }
+    }
+
+    private Clause getClauses(Clauses kB, Sentence sentence) {
         Clause result = new Clause();
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
@@ -399,8 +408,8 @@ public class KBDriver {
             UnarySentence right = (UnarySentence)binary.getS2();
 
             if (binary.getConnective() == BinaryConnective.AND) {
-                Clause fromLeft = deriveClauses(kB, left);
-                Clause fromRight = deriveClauses(kB, right);
+                Clause fromLeft = getClauses(kB, left);
+                Clause fromRight = getClauses(kB, right);
                 if (fromLeft.size() != 0) {
                     kB.add(fromLeft);
                 }
@@ -414,19 +423,19 @@ public class KBDriver {
                 result.add(left.getSymbol());
             }
             else {
-                result.addAll(deriveClauses(kB, left));
+                result.addAll(getClauses(kB, left));
             }
             if (right.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
                 result.add(right.getSymbol());
             }
             else {
-                result.addAll(deriveClauses(kB, right));
+                result.addAll(getClauses(kB, right));
             }
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
             if (unary.nestedSentence != null) {
-                return deriveClauses(kB, unary.nestedSentence);
+                return getClauses(kB, unary.nestedSentence);
             }
             if (unary.isLiteral()) {
                 kB.add(new Clause(unary));
