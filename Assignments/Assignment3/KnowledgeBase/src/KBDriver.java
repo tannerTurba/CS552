@@ -180,33 +180,79 @@ public class KBDriver {
             big = c1;
         }
 
-        // Sentence negated = new UnarySentence(new UnarySentence(new Sentence()));
-
-        for (Symbol s1 : small) {
-            Symbol negatedTemp = new Symbol(s1.getValue(), !s1.isNegated());
-            if (!big.contains(negatedTemp)) {
-                result.add(big);
+        Sentence negated;
+        if (small.size() == 1) {
+            if (small.get(0).isNegated()) {
+                negated = new UnarySentence(new UnarySentence(new Symbol(small.get(0).getValue(), false)));
             }
-            else if (big.contains(negatedTemp)) {
-                big.remove(negatedTemp);
-                if (!solution.contains(big)) {
-                    proofIndex++;
-                    int oldIndex = big.getProofIndex();
-                    big.setProofIndex(proofIndex);
-                    if (big.size() == 0) {
-                        result.add(Clause.EMPTY);
-                    }
-                    else {
-                        result.add(big);
-                    }
-    
-                    if (isProof) {
-                        solution.add(big);
-                        String clausePrint = "()";
-                        if (big.size() != 0) {
-                            clausePrint = big.getClause();
+            else {
+                negated = new UnarySentence(small.get(0));
+            }
+        }
+        else {
+            UnarySentence left, right;
+            if (small.get(0).isNegated()) {
+                left = new UnarySentence(new UnarySentence(new Symbol(small.get(0).getValue(), false)));
+            }
+            else {
+                left = new UnarySentence(small.get(0));
+            }
+            if (small.get(1).isNegated()) {
+                right = new UnarySentence(new UnarySentence(new Symbol(small.get(1).getValue(), false)));
+            }
+            else {
+                right = new UnarySentence(small.get(1));
+            }
+
+            BinarySentence b = new BinarySentence(left, BinaryConnective.OR, right);
+            for (int i = 2; i < small.size(); i++) {
+                if (small.get(2).isNegated()) {
+                    right = new UnarySentence(new UnarySentence(new Symbol(small.get(i).getValue(), false)));
+                }
+                else {
+                    right = new UnarySentence(small.get(i));
+                }
+                b = new BinarySentence(new UnarySentence(b), BinaryConnective.OR, right);
+            }
+            negated = b;
+        }
+        negated = new UnarySentence(new UnarySentence(negated));
+        negated = convertToCNF(negated);
+        Clauses fromNeg = deriveClauses(negated);
+        
+        for (Clause negClause : fromNeg) {
+            for (Symbol negatedTemp : negClause) {
+                if (!big.contains(negatedTemp)) {
+                    result.add(big);
+                }
+                else if (big.contains(negatedTemp)) {
+                    big.remove(negatedTemp);
+                    if (!solution.contains(big)) {
+                        proofIndex++;
+                        int oldIndex = big.getProofIndex();
+                        big.setProofIndex(proofIndex);
+                        if (big.size() == 0) {
+                            result.add(Clause.EMPTY);
                         }
-                        System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, s1.getValue(), oldIndex, small.getProofIndex());
+                        else {
+                            result.add(big);
+                        }
+        
+                        if (isProof) {
+                            solution.add(big);
+                            String clausePrint = "()";
+                            if (big.size() != 0) {
+                                clausePrint = big.getClause();
+                            }
+                            String resolvedOn;
+                            if (negatedTemp.isNegated()) {
+                                resolvedOn = negatedTemp.getValue();
+                            }
+                            else {
+                                resolvedOn = String.format("~%s", negatedTemp.getValue());
+                            }
+                            System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, resolvedOn, oldIndex, small.getProofIndex());
+                        }
                     }
                 }
             }
