@@ -29,8 +29,31 @@ public class BinarySentence extends Sentence {
         return s2;
     }
 
-    // @Override
-    // public Symbol asNegated() {
-        
-    // }
+    public BinarySentence negate() {
+        UnarySentence left = getS1();
+        UnarySentence right = getS2();
+        BinaryConnective connective = getConnective();
+        left = left.negate();
+        right = right.negate();
+
+        if (connective == BinaryConnective.AND) {   // ^
+            return new BinarySentence(left, BinaryConnective.OR, right);
+        }
+        else {  // v
+            return new BinarySentence(left, BinaryConnective.AND, right);
+        }
+    }
+
+    public void parse(String prefix, int indent) {
+        System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, this.toString(), this.getConnective().toString());
+
+        if (this.getS1() instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)this.getS1();
+            unary.parse("LHS", indent);
+        }
+        if (this.getS2() instanceof UnarySentence) {
+            UnarySentence unary = (UnarySentence)this.getS2();
+            unary.parse("RHS", indent);
+        }
+    }
 }
