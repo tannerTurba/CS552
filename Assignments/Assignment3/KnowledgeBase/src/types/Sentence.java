@@ -14,10 +14,10 @@ abstract public class Sentence {
 
     public Sentence convertToCNF() {
         Sentence result = this;
-        result = result.eliminateIff();
-        result = result.eliminateIf();
-        result = result.eliminateNot();
-        result = result.applyDistributivity();
+        result = result.eliminateIff(this);
+        result = result.eliminateIf(this);
+        result = result.eliminateNot(this, false);
+        result = result.applyDistributivity(this);
         if (result instanceof UnarySentence) {
             UnarySentence us = (UnarySentence)result;
             if (us.nestedSentence != null) {
@@ -25,10 +25,6 @@ abstract public class Sentence {
             }
         }
         return result;
-    }
-
-    public Sentence eliminateIff() {
-        return eliminateIff(this);
     }
 
     private Sentence eliminateIff(Sentence sentence) {
@@ -55,10 +51,6 @@ abstract public class Sentence {
         return sentence;
     }
 
-    public Sentence eliminateIf() {
-        return eliminateIf(this);
-    }
-
     private Sentence eliminateIf(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
@@ -81,11 +73,7 @@ abstract public class Sentence {
         return sentence;
     }
 
-    public Sentence eliminateNot() {
-        return eliminateNOT(this, false);
-    }
-
-    private Sentence eliminateNOT(Sentence sentence, boolean outterIsNegated) {
+    private Sentence eliminateNot(Sentence sentence, boolean outterIsNegated) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
             boolean leftIsNegated = binarySentence.getS1().isNegated;
@@ -94,8 +82,8 @@ abstract public class Sentence {
                 binarySentence = binarySentence.negate();
             }
 
-            UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getS1(), leftIsNegated);
-            UnarySentence right = (UnarySentence)eliminateNOT(binarySentence.getS2(), rightIsNegated);
+            UnarySentence left = (UnarySentence)eliminateNot(binarySentence.getS1(), leftIsNegated);
+            UnarySentence right = (UnarySentence)eliminateNot(binarySentence.getS2(), rightIsNegated);
             return new BinarySentence(left, binarySentence.getConnective(), right);
         }
         else {
@@ -119,17 +107,13 @@ abstract public class Sentence {
             }
             else if (unarySentence.nestedUnary != null) {
                 // ~(a)
-                return eliminateNOT(unarySentence.nestedUnary, shouldNegate);
+                return eliminateNot(unarySentence.nestedUnary, shouldNegate);
             }
             else {
                 // (a)
-                return new UnarySentence(eliminateNOT(unarySentence.nestedSentence, shouldNegate));
+                return new UnarySentence(eliminateNot(unarySentence.nestedSentence, shouldNegate));
             }
         }
-    }
-
-    public Sentence applyDistributivity() {
-        return applyDistributivity(this);
     }
 
     private Sentence applyDistributivity(Sentence sentence) {
