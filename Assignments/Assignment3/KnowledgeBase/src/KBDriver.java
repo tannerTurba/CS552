@@ -35,9 +35,17 @@ public class KBDriver {
                 System.out.print("> ");
             }
             String cmd = parser.getCommand();
+
+            if (fileName != null && !cmd.equalsIgnoreCase("eof")) {
+                System.out.printf("\n> %s ", cmd.toUpperCase());
+            }
     
             if (cmd.equalsIgnoreCase("tellc")) {
-                kB.add(parser.getClause());
+                Clause clause = parser.getClause();
+                if (fileName != null) {
+                    System.out.print(clause);
+                }
+                kB.add(clause);
             }
             else if (cmd.equalsIgnoreCase("print")) {
                 System.out.println(kB);
@@ -47,10 +55,11 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("ask")) {
                 Sentence query = parser.getSentence();
-                query = convertToCNF(query);
-                // Clauses searchClauses = new Clauses();
-                // deriveClauses(searchClauses, query);
+                if (fileName != null) {
+                    System.out.print(query);
+                }
 
+                // query = convertToCNF(query);
                 if (PlResolution(kB, query, false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
@@ -60,8 +69,12 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("proof")) {
                 Sentence query = parser.getSentence();
-                query = convertToCNF(query);
-                
+                if (fileName != null) {
+                    System.out.print(query + "\n");
+                }
+
+                // query = convertToCNF(query);
+                // deriveClauses(kB, query);
                 if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
                 }
@@ -71,18 +84,28 @@ public class KBDriver {
             }
             else if (cmd.equalsIgnoreCase("tell")) {
                 Sentence sentence = parser.getSentence();
+                if (fileName != null) {
+                    System.out.print(sentence);
+                }
                 sentence = convertToCNF(sentence);
-                deriveClauses(kB, sentence);
+                kB.addAll(deriveClauses(sentence));
             }
             else if (cmd.equalsIgnoreCase("cnf")) {
                 Sentence sentence = parser.getSentence();
+                if (fileName != null) {
+                    System.out.print(sentence);
+                }
+
                 sentence = convertToCNF(sentence);
-                Clauses x = new Clauses();
-                deriveClauses(x, sentence);
+                Clauses x = deriveClauses(sentence);
                 System.out.println(x);
             }
             else if (cmd.equalsIgnoreCase("parse")) {
                 Sentence sentence = parser.getSentence();
+                if (fileName != null) {
+                    System.out.print(sentence);
+                }
+
                 parse(sentence);
             }
             else if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("done") || cmd.equalsIgnoreCase("quit")) {
@@ -107,79 +130,105 @@ public class KBDriver {
     }
 
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
-        alpha = new UnarySentence(new UnarySentence(alpha));
-        alpha = convertToCNF(alpha);
+        Sentence negAlpha = new UnarySentence(new UnarySentence(alpha));
+        negAlpha = convertToCNF(negAlpha);
+        Clauses fromNegAlpha = deriveClauses(negAlpha);
         if (isProof) {
             System.out.println("Proof:");
-            proofIndex = kB.getProof() + 1;
-            System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, alpha.getSymbol());
+            proofIndex = kB.getProof();
+            for (Clause c : fromNegAlpha) {
+                proofIndex++;
+                c.setProofIndex(proofIndex);
+                System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, c.getClause());
+            }
         }
 
         Clauses clauses = new Clauses(kB);
-        clauses.add(new Clause(alpha.getSymbol(), proofIndex));
+        clauses.addAll(fromNegAlpha);
+        clauses.sort();
         Clauses derived = new Clauses();
+        Clauses solution = new Clauses();
         while (true) {
+            // beginning round
             for (int c1 = 0; c1 < clauses.size(); c1++) {
-                for (int c2 = 0; c2 < clauses.size(); c2++) {
-                    Clause resolvents = PlResolve(clauses, c1, c2, isProof);
-                    if (resolvents.size() == 0) {
+                for (int c2 = c1 + 1; c2 < clauses.size(); c2++) {
+                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, solution);
+                    if (resolvents.contains(Clause.EMPTY)) {
                         return true;
                     }
-                    derived.add(resolvents);
+                    derived.addAll(resolvents);
                 }
             }
             if (clauses.contains(derived)) {
                 return false;
             }
             clauses.addAll(derived);
+            clauses.sort();
+            clauses = factorClauses(clauses);
         }
     }
 
-    private Clause PlResolve(Clauses clauses, int c1, int c2, boolean isProof) {
-        Clause bigC, smallC, result = new Clause();
-        if (clauses.get(c1).size() <= clauses.get(c2).size()) {
-            bigC = clauses.get(c1);
-            smallC = clauses.get(c2);
+    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses solution) {
+        Clause small, big;
+        Clauses result = new Clauses();
+        if (c1.size() <= c2.size()) {
+            small = c1;
+            big = c2;
         }
         else {
-            bigC = clauses.get(c2);
-            smallC = clauses.get(c1);
+            small = c2;
+            big = c1;
         }
 
-        for (Symbol s1 : bigC) {
-                Symbol negatedTemp = new Symbol(s1.getValue(), !s1.isNegated());
-                if (!smallC.contains(negatedTemp) && !result.contains(s1)) {
-                    result.add(s1);
-                }
-                else if (smallC.contains(negatedTemp)) {
-                    proofIndex++;
-                    int oldIndex = smallC.getProofIndex();
-                    smallC.remove(negatedTemp);
-                    smallC.setProofIndex(proofIndex);
+        // Sentence negated = new UnarySentence(new UnarySentence(new Sentence()));
 
-                    if (isProof) {
-                        String clausePrint = "()";
-                        if (smallC.size() != 0) {
-                            clausePrint = smallC.getClause();
-                        }
-                        System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, s1.getValue(), oldIndex, bigC.getProofIndex());
+        for (Symbol s1 : small) {
+            Symbol negatedTemp = new Symbol(s1.getValue(), !s1.isNegated());
+            if (!big.contains(negatedTemp)) {
+                result.add(big);
+            }
+            else if (big.contains(negatedTemp)) {
+                big.remove(negatedTemp);
+                if (!solution.contains(big)) {
+                    proofIndex++;
+                    int oldIndex = big.getProofIndex();
+                    big.setProofIndex(proofIndex);
+                    if (big.size() == 0) {
+                        result.add(Clause.EMPTY);
                     }
-                    result.addAll(smallC);
+                    else {
+                        result.add(big);
+                    }
+    
+                    if (isProof) {
+                        solution.add(big);
+                        String clausePrint = "()";
+                        if (big.size() != 0) {
+                            clausePrint = big.getClause();
+                        }
+                        System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, s1.getValue(), oldIndex, small.getProofIndex());
+                    }
                 }
             }
+        }
+        return factorClauses(result);
+    }
+
+    private Clauses factorClauses(Clauses clauses) {
+        Clauses result = new Clauses();
+        for (Clause c : clauses) {
+            if (!result.contains(c)) {
+                result.add(c);
+            }
+        }
         return result;
     }
 
     public Sentence convertToCNF(Sentence sentence) {
-        // System.out.println(sentence);
         Sentence result = eliminateIff(sentence);
-        // System.out.println(result);
         result = eliminateIf(result);
-        // System.out.println(result);
         result = eliminateNOT(result, false);
-        // System.out.println(result);
         result = applyDistributivity(result);
-        // System.out.println(result);
         if (result instanceof UnarySentence) {
             UnarySentence us = (UnarySentence)result;
             if (us.nestedSentence != null) {
@@ -393,52 +442,71 @@ public class KBDriver {
         }
     }
 
-    private void deriveClauses(Clauses kB, Sentence sentence) {
-        Clause c = getClauses(kB, sentence);
-        if (c.size() > 0) {
-            kB.add(c);
-        }
-    }
+    // private Cluases deriveClauses(Clauses kB, Sentence sentence) {
+    //     Clauses c = getClauses(sentence);
+    //     kB.addAll(c);
+    // }
 
-    private Clause getClauses(Clauses kB, Sentence sentence) {
-        Clause result = new Clause();
+    private Clauses deriveClauses(Sentence sentence) {
+        Clauses result = new Clauses();
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
             UnarySentence left = (UnarySentence)binary.getS1();
             UnarySentence right = (UnarySentence)binary.getS2();
 
+
             if (binary.getConnective() == BinaryConnective.AND) {
-                Clause fromLeft = getClauses(kB, left);
-                Clause fromRight = getClauses(kB, right);
+                Clauses fromLeft = deriveClauses(left);
+                Clauses fromRight = deriveClauses(right);
                 if (fromLeft.size() != 0) {
-                    kB.add(fromLeft);
+                    result.addAll(fromLeft);
                 }
                 if (fromRight.size() != 0) {
-                    kB.add(fromRight);
+                    result.addAll(fromRight);
                 }
-                return Clause.EMPTY;
+                return result;
+            }
+            else {
+                Clauses fromLeft = deriveClauses(left);
+                Clauses fromRight = deriveClauses(right);
+                Clause disjunction = new Clause();
+                for (Clause c : fromLeft) {
+                    disjunction.addAll(c);
+                }
+                for (Clause c : fromRight) {
+                    disjunction.addAll(c);
+                }
+                return new Clauses(disjunction);
+
+                // if (fromLeft.size() != 0) {
+                //     result.addAll(fromLeft);
+                // }
+                // if (fromRight.size() != 0) {
+                //     result.addAll(fromRight);
+                // }
+                // return result;
             }
 
-            if (left.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
-                result.add(left.getSymbol());
-            }
-            else {
-                result.addAll(getClauses(kB, left));
-            }
-            if (right.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
-                result.add(right.getSymbol());
-            }
-            else {
-                result.addAll(getClauses(kB, right));
-            }
+            // if (left.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
+            //     result.add(new Clause(left.getSymbol()));
+            // }
+            // else {
+            //     result.addAll(getClauses(left));
+            // }
+            // if (right.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
+            //     result.add(new Clause(right.getSymbol()));
+            // }
+            // else {
+            //     result.addAll(getClauses(right));
+            // }
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
             if (unary.nestedSentence != null) {
-                return getClauses(kB, unary.nestedSentence);
+                return deriveClauses(unary.nestedSentence);
             }
             if (unary.isLiteral()) {
-                kB.add(new Clause(unary));
+                result.add(new Clause(unary));
             }
         }
         return result;

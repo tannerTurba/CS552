@@ -3,7 +3,7 @@ package types;
 import java.util.*;
 
 //Can be used as a CNFSentence.
-public class Clauses extends ArrayList<Clause>{
+public class Clauses extends ArrayList<Clause> {
     public Clauses() {
         super();
     }
@@ -13,6 +13,11 @@ public class Clauses extends ArrayList<Clause>{
         for (Clause c : clausesToAdd) {
             add(new Clause(c));
         }
+    }
+
+    public Clauses(Clause clauseToAdd) {
+        super();
+        add(clauseToAdd);
     }
 
     public String toString() {
@@ -51,5 +56,22 @@ public class Clauses extends ArrayList<Clause>{
         }
         System.out.println(sb.toString());
         return i;
+    }
+
+    public boolean add(Clause clause) {
+        boolean isAdded = super.add(clause);
+        sort();
+        return isAdded;
+    }
+
+    public void sort() {
+        sort(new Comparator<Clause>() {
+
+            @Override
+            public int compare(Clause o1, Clause o2) {
+                return o2.size() - o1.size();
+            }
+            
+        });
     }
 }
