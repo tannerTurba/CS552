@@ -181,14 +181,7 @@ abstract public class Sentence {
         parse("Orig", 0);
     }
 
-    public void parse(String prefix, int indent) {
-        if (this instanceof BinarySentence) {
-            ((BinarySentence)this).parse(prefix, indent);
-        }
-        else if (this instanceof UnarySentence) {
-            ((UnarySentence)this).parse(prefix, indent);
-        }
-    }
+    public abstract void parse(String prefix, int indent);
 
     public Clauses deriveClauses() {
         return deriveClauses(this);

@@ -74,4 +74,14 @@ public class Clauses extends ArrayList<Clause> {
             
         });
     }
+
+    public Clauses factor() {
+        Clauses result = new Clauses();
+        for (Clause c : this) {
+            if (!result.contains(c)) {
+                result.add(c);
+            }
+        }
+        return result;
+    }
 }

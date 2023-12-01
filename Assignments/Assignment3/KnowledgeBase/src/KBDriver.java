@@ -161,7 +161,7 @@ public class KBDriver {
             }
             clauses.addAll(derived);
             clauses.sort();
-            clauses = factorClauses(clauses);
+            clauses = clauses.factor();
         }
     }
 
@@ -254,16 +254,6 @@ public class KBDriver {
                 }
             }
         }
-        return factorClauses(result);
-    }
-
-    private Clauses factorClauses(Clauses clauses) {
-        Clauses result = new Clauses();
-        for (Clause c : clauses) {
-            if (!result.contains(c)) {
-                result.add(c);
-            }
-        }
-        return result;
+        return result.factor();
     }
 }
