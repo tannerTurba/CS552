@@ -79,7 +79,7 @@ abstract public class Sentence {
             boolean leftIsNegated = binarySentence.getS1().isNegated;
             boolean rightIsNegated = binarySentence.getS2().isNegated;
             if (outterIsNegated) {
-                binarySentence = binarySentence.negate();
+                binarySentence.negate();
             }
 
             UnarySentence left = (UnarySentence)eliminateNot(binarySentence.getS1(), leftIsNegated);
@@ -91,7 +91,9 @@ abstract public class Sentence {
             boolean shouldNegate = unarySentence.isNegated;
             if (outterIsNegated && !(unarySentence.isSymbol() || unarySentence.isLiteral())) {
                 if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof BinarySentence) {
-                    unarySentence = new UnarySentence(((BinarySentence)unarySentence.nestedSentence).negate());
+                    BinarySentence negBinary = (BinarySentence)unarySentence.nestedSentence;
+                    negBinary.negate();
+                    unarySentence = new UnarySentence(negBinary);
                 }
                 else if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof UnarySentence) {
                     unarySentence = ((UnarySentence)unarySentence.nestedSentence).negate();
