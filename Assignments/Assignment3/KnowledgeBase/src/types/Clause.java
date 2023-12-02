@@ -29,11 +29,6 @@ public class Clause extends ArrayList<Symbol> {
         this.proofIndex = proofIndex;
     }
 
-    // public Clause(Symbol symbol) {
-    //     super();
-    //     this.add(symbol);
-    // }
-
     public int getProofIndex() {
         return proofIndex;
     }

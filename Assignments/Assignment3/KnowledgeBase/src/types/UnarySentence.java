@@ -51,39 +51,4 @@ public class UnarySentence extends Sentence {
     public boolean isLiteral() {
         return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null && nestedUnary.nestedSentence == null;
     }
-
-    public UnarySentence negate() {
-        if (isSymbol()) {
-            // a -> ~a
-            return new UnarySentence(this);
-        }
-        else if (isLiteral()) {
-            // ~a -> a
-            return nestedUnary;
-        }
-        else if (nestedUnary != null && nestedUnary.nestedSentence != null) {
-            // ~(a) -> (a)
-            return nestedUnary;
-        }
-        else if (nestedUnary == null && nestedSentence != null) {
-            // (a) -> ~(a)
-            return new UnarySentence(this);
-        }
-        // ???
-        return this;
-    }
-
-    public void parse(String prefix, int indent) {
-        if (nestedSentence == null && this.nestedUnary == null) {
-            System.out.printf(" %s: [%s] Unary [symbol]: [%s]\n".indent(indent), prefix, this, this.getSymbol());
-        }
-        else if (nestedSentence != null) {
-            System.out.printf(" %s: [%s] Unary [()]\n".indent(indent), prefix, this);
-            nestedSentence.parse("Sub", indent+2);
-        }
-        else if (this.isNegated) {
-            System.out.printf(" %s: [%s] Unary [~]\n".indent(indent), prefix, this);
-            nestedUnary.parse("Sub", indent+2);
-        }
-    }
 }
