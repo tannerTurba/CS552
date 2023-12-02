@@ -29,15 +29,12 @@ public class BinarySentence extends Sentence {
         return s2;
     }
 
-    public void negate() {
-        s1.negate();
-        s2.negate();
-
+    public BinarySentence negate() {
         if (connector == BinaryConnective.AND) {
-            connector = BinaryConnective.OR;
+            return new BinarySentence(s1.negate(), BinaryConnective.OR, s2.negate());
         }
         else {
-            connector = BinaryConnective.OR;
+            return new BinarySentence(s1.negate(), BinaryConnective.AND, s2.negate());
         }
     }
 

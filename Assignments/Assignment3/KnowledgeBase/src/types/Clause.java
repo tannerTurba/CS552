@@ -5,6 +5,9 @@ import java.util.Comparator;
 
 public class Clause extends ArrayList<Symbol> {
     public static Clause EMPTY = new Clause();
+    private Clause parent1 = null;
+    private Clause parent2 = null;
+    private Clause child = null;
     private int proofIndex;
 
     public Clause() {
@@ -80,4 +83,47 @@ public class Clause extends ArrayList<Symbol> {
         }
         return false;
     }
+
+    /**
+     * @return Clause return the parent1
+     */
+    public Clause getParent1() {
+        return parent1;
+    }
+
+    /**
+     * @param parent1 the parent1 to set
+     */
+    public void setParent1(Clause parent1) {
+        this.parent1 = parent1;
+    }
+
+    /**
+     * @return Clause return the parent2
+     */
+    public Clause getParent2() {
+        return parent2;
+    }
+
+    /**
+     * @param parent2 the parent2 to set
+     */
+    public void setParent2(Clause parent2) {
+        this.parent2 = parent2;
+    }
+
+    /**
+     * @return Clause return the child
+     */
+    public Clause getChild() {
+        return child;
+    }
+
+    /**
+     * @param child the child to set
+     */
+    public void setChild(Clause child) {
+        this.child = child;
+    }
+
 }

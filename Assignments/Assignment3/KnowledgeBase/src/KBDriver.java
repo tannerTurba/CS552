@@ -58,8 +58,7 @@ public class KBDriver {
                 if (fileName != null) {
                     System.out.print(query);
                 }
-
-                // query = convertToCNF(query);
+                
                 if (PlResolution(kB, query, false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
@@ -73,8 +72,6 @@ public class KBDriver {
                     System.out.print(query + "\n");
                 }
 
-                // query = convertToCNF(query);
-                // deriveClauses(kB, query);
                 if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
                 }
@@ -106,7 +103,7 @@ public class KBDriver {
                     System.out.print(sentence);
                 }
 
-                parse(sentence);
+                sentence.parse();;
             }
             else if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("done") || cmd.equalsIgnoreCase("quit")) {
                 System.out.println("Thank you for using the Knowledge Base!");
@@ -326,7 +323,7 @@ public class KBDriver {
             boolean leftIsNegated = binarySentence.getS1().isNegated;
             boolean rightIsNegated = binarySentence.getS2().isNegated;
             if (outterIsNegated) {
-                binarySentence = negateBinary(binarySentence);
+                binarySentence = binarySentence.negate();
             }
 
             UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getS1(), leftIsNegated);
@@ -338,13 +335,13 @@ public class KBDriver {
             boolean shouldNegate = unarySentence.isNegated;
             if (outterIsNegated && !(unarySentence.isSymbol() || unarySentence.isLiteral())) {
                 if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof BinarySentence) {
-                    unarySentence = new UnarySentence(negateBinary((BinarySentence)unarySentence.nestedSentence));
+                    unarySentence = new UnarySentence(((BinarySentence)unarySentence.nestedSentence).negate());
                 }
                 else if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof UnarySentence) {
-                    unarySentence = negateUnary((UnarySentence)unarySentence.nestedSentence);
+                    unarySentence = ((UnarySentence)unarySentence.nestedSentence).negate();
                 }
                 else {
-                    unarySentence = negateUnary(unarySentence);
+                    unarySentence = unarySentence.negate();
                 }
             }
             
@@ -361,42 +358,6 @@ public class KBDriver {
                 return new UnarySentence(eliminateNOT(unarySentence.nestedSentence, shouldNegate));
             }
         }
-    }
-
-    private BinarySentence negateBinary(BinarySentence binarySentence) {
-        UnarySentence left = binarySentence.getS1();
-        UnarySentence right = binarySentence.getS2();
-        BinaryConnective connective = binarySentence.getConnective();
-        left = negateUnary(left);
-        right = negateUnary(right);
-
-        if (connective == BinaryConnective.AND) {   // ^
-            return new BinarySentence(left, BinaryConnective.OR, right);
-        }
-        else {  // v
-            return new BinarySentence(left, BinaryConnective.AND, right);
-        }
-    }
-
-    private UnarySentence negateUnary(UnarySentence unary) {
-        if (unary.isSymbol()) {
-            // a -> ~a
-            return new UnarySentence(unary);
-        }
-        else if (unary.isLiteral()) {
-            // ~a -> a
-            return unary.nestedUnary;
-        }
-        else if (unary.nestedUnary != null && unary.nestedUnary.nestedSentence != null) {
-            // ~(a) -> (a)
-            return unary.nestedUnary;
-        }
-        else if (unary.nestedUnary == null && unary.nestedSentence != null) {
-            // (a) -> ~(a)
-            return new UnarySentence(unary);
-        }
-        // ???
-        return unary;
     }
 
     private Sentence applyDistributivity(Sentence sentence) {
@@ -444,45 +405,6 @@ public class KBDriver {
         return sentence;
     }
 
-    private void parse(Sentence sentence) {
-        parse(sentence, "Orig", 0);
-    }
-
-    private void parse(Sentence sentence, String prefix, int indent) {
-        if (sentence instanceof BinarySentence) {
-            BinarySentence binary = (BinarySentence)sentence;
-            System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, binary.toString(), binary.getConnective().toString());
-
-            if (binary.getS1() instanceof UnarySentence) {
-                UnarySentence unary = (UnarySentence)binary.getS1();
-                parseUnary(unary, "LHS", indent);
-            }
-            if (binary.getS2() instanceof UnarySentence) {
-                UnarySentence unary = (UnarySentence)binary.getS2();
-                parseUnary(unary, "RHS", indent);
-            }
-        }
-    }
-
-    private void parseUnary(UnarySentence unary, String prefix, int indent) {
-        if (unary.nestedSentence == null && unary.nestedUnary == null) {
-            System.out.printf(" %s: [%s] Unary [symbol]: [%s]\n".indent(indent), prefix, unary, unary.getSymbol());
-        }
-        else if (unary.nestedSentence != null) {
-            System.out.printf(" %s: [%s] Unary [()]\n".indent(indent), prefix, unary);
-            parse(unary.nestedSentence, "Sub", indent+2);
-        }
-        else if (unary.isNegated) {
-            System.out.printf(" %s: [%s] Unary [~]\n".indent(indent), prefix, unary);
-            parseUnary(unary.nestedUnary, "Sub", indent+2);
-        }
-    }
-
-    // private Cluases deriveClauses(Clauses kB, Sentence sentence) {
-    //     Clauses c = getClauses(sentence);
-    //     kB.addAll(c);
-    // }
-
     private Clauses deriveClauses(Sentence sentence) {
         Clauses result = new Clauses();
         if (sentence instanceof BinarySentence) {
@@ -513,28 +435,7 @@ public class KBDriver {
                     disjunction.addAll(c);
                 }
                 return new Clauses(disjunction);
-
-                // if (fromLeft.size() != 0) {
-                //     result.addAll(fromLeft);
-                // }
-                // if (fromRight.size() != 0) {
-                //     result.addAll(fromRight);
-                // }
-                // return result;
             }
-
-            // if (left.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
-            //     result.add(new Clause(left.getSymbol()));
-            // }
-            // else {
-            //     result.addAll(getClauses(left));
-            // }
-            // if (right.isLiteral() && binary.getConnective() == BinaryConnective.OR) {
-            //     result.add(new Clause(right.getSymbol()));
-            // }
-            // else {
-            //     result.addAll(getClauses(right));
-            // }
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
