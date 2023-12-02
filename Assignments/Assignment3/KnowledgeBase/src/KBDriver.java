@@ -37,7 +37,7 @@ public class KBDriver {
             String cmd = parser.getCommand();
 
             if (fileName != null && !cmd.equalsIgnoreCase("eof")) {
-                System.out.printf("\n> %s ", cmd.toUpperCase());
+                System.out.printf("> %s ", cmd.toUpperCase());
             }
     
             if (cmd.equalsIgnoreCase("tellc")) {
@@ -127,9 +127,14 @@ public class KBDriver {
     }
 
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
+        Clauses premises = new Clauses();
+        Clauses negatedGoal = new Clauses();
         Sentence negAlpha = new UnarySentence(new UnarySentence(alpha));
         negAlpha = convertToCNF(negAlpha);
         Clauses fromNegAlpha = deriveClauses(negAlpha);
+        for (Clause c : fromNegAlpha) {
+            negatedGoal.add(c);
+        }
         // if (isProof) {
         //     System.out.println("Proof:");
         //     proofIndex = kB.getProof();
@@ -141,6 +146,9 @@ public class KBDriver {
         // }
 
         Clauses clauses = new Clauses(kB);
+        for (Clause c : clauses) {
+            premises.add(c);
+        }
         clauses.addAll(fromNegAlpha);
         clauses.sort();
         Clauses derived = new Clauses();
@@ -149,11 +157,12 @@ public class KBDriver {
             // beginning round
             for (int c1 = 0; c1 < clauses.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < clauses.size(); c2++) {
-                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, derived);
+                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(null), clauses.get(c2).getCopy(null), isProof, derived);
                     if (resolvents.contains(Clause.EMPTY)) {
                         if (isProof) {
                             Clause solution = resolvents.get(resolvents.indexOf(Clause.EMPTY));
-                            solution.printProof();
+                            // System.out.println(solution);
+                            solution.printProof(premises, negatedGoal);
                         }
                         return true;
                     }
@@ -224,20 +233,25 @@ public class KBDriver {
         for (Clause negClause : fromNeg) {
             for (Symbol negatedTemp : negClause) {
                 if (big.contains(negatedTemp)) {
-                    Clause resolvent = big.getCopy();
+                    Clause resolvent = big.getCopy("n/a");
                     resolvent.remove(negatedTemp);
                     if (!derived.contains(resolvent)) {
                         if (resolvent.size() == 0) {
                             resolvent = Clause.EMPTY;
                         }
-                        resolvent.setParent1(small);
-                        resolvent.setParent2(big);
+                        resolvent.setParent1(big.getCopy(null));
+                        resolvent.setParent2(small.getCopy("n/a"));
                         // small.setChild(resolvent);
                         // big.setChild(resolvent);
                         // if (isProof)
                         //     System.out.println(resolvent);
-                        result.add(resolvent);
+                        
                         if (resolvent == Clause.EMPTY) {
+                            result.add(resolvent);
+                            return result.factor();
+                        }
+                        else {
+                            result.add(resolvent.getCopy(null));
                             return result.factor();
                         }
                     }
