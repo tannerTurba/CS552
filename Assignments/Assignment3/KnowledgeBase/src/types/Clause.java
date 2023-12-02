@@ -6,10 +6,12 @@ import java.util.Comparator;
 public class Clause extends ArrayList<Symbol> {
     public static Clause EMPTY = new Clause();
     private static int proofNum = 1;
+    private static Clauses existingProofClauses = new Clauses();
     private Clause parent1 = null;
     private Clause parent2 = null;
     private Clause child = null;
-    private int proofIndex;
+    private int proofIndex = -1;
+    private String resolvedOn = "";
     // private String description = "";
 
     public Clause() {
@@ -24,6 +26,7 @@ public class Clause extends ArrayList<Symbol> {
         parent1 = clause.getParent1();
         parent2 = clause.getParent2();
         child = clause.getChild();
+        resolvedOn = clause.resolvedOn;
         // description = clause.getDescription();
     }
 
@@ -89,6 +92,7 @@ public class Clause extends ArrayList<Symbol> {
 
     public Clause getCopy(String description) {
         Clause newC = new Clause(this);
+
         // if (description != null) {
         //     newC.setDescription(description);
         // }
@@ -102,6 +106,50 @@ public class Clause extends ArrayList<Symbol> {
             }
         }
         return false;
+    }
+    
+    public boolean containsComplementaryLiteral(Clause clause) {
+        for (Symbol s : clause) {
+            if (this.contains(s)) {
+                resolvedOn = s.getValue();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsComplementaryLiterals(Clauses clauses) {
+        for (Clause c : clauses) {
+            if (this.containsComplementaryLiteral(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeComplementaryLiteral(Clause clause) {
+        for (Symbol s : clause) {
+            if (this.contains(s)) {
+                this.remove(s);
+            }
+            else {
+                this.add(s);
+            }
+        }
+    }
+
+    public void removeComplementaryLiterals(Clauses clauses) {
+        for (Clause c : clauses) {
+            if (this.containsComplementaryLiteral(c)) {
+                this.removeComplementaryLiteral(c);
+            }
+            else {
+                for (Symbol s : c) {
+                    s.negate();
+                    this.add(s);
+                }
+            }
+        }
     }
 
     /**
@@ -163,20 +211,37 @@ public class Clause extends ArrayList<Symbol> {
         if (this != Clause.EMPTY) {
             clause = getClause();
         }
-
-        String description = "";
-        if (premises.contains(this)) {
-            description = "Premise";
-        }
-        else if (negated.contains(this)) {
-            description = "Negated Goal";
-        }
         else {
-            description = String.format("Resolution on %s: %d, %d", parent2.getClause(), parent1.getProofIndex(), parent2.getProofIndex());
+            resolvedOn = parent1.getClause();
         }
-        System.out.printf("%2d. %-20s [%s]\n", proofNum, clause, description);
-        setProofIndex(proofNum);
-        proofNum++;
+
+        if (!existingProofClauses.contains(this)) {
+            String description = "";
+            if (premises.contains(this)) {
+                description = "Premise";
+            }
+            else if (negated.contains(this)) {
+                description = "Negated Goal";
+            }
+            else {
+                int p1Index = parent1.getProofIndex();
+                int p2Index = parent2.getProofIndex();
+                if (existingProofClauses.contains(parent1)) {
+                    p1Index = existingProofClauses.get(existingProofClauses.indexOf(parent1)).getProofIndex();
+                }
+                if (existingProofClauses.contains(parent2)) {
+                    p2Index = existingProofClauses.get(existingProofClauses.indexOf(parent2)).getProofIndex();
+                }
+                description = String.format("Resolution on %s: %d, %d", resolvedOn, p1Index, p2Index);
+            }
+    
+            System.out.printf("%2d. %-20s [%s]\n", proofNum, clause, description);
+            if (proofIndex == -1) {
+                proofIndex = proofNum;
+            }
+            existingProofClauses.add(this);
+            proofNum++;
+        }
     }
 
     // /**

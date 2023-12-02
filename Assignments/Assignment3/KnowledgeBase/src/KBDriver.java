@@ -56,7 +56,7 @@ public class KBDriver {
             else if (cmd.equalsIgnoreCase("ask")) {
                 Sentence query = parser.getSentence();
                 if (fileName != null) {
-                    System.out.print(query);
+                    System.out.print(query + "\n");
                 }
 
                 if (PlResolution(kB, query, false)) {
@@ -230,11 +230,12 @@ public class KBDriver {
         negated = convertToCNF(negated);
         Clauses fromNeg = deriveClauses(negated);
         
-        for (Clause negClause : fromNeg) {
-            for (Symbol negatedTemp : negClause) {
-                if (big.contains(negatedTemp)) {
+        // for (Clause negClause : fromNeg) {
+            // for (Symbol negatedTemp : negClause) {
+                if (big.containsComplementaryLiterals(fromNeg)) {
                     Clause resolvent = big.getCopy("n/a");
-                    resolvent.remove(negatedTemp);
+                    resolvent.removeComplementaryLiterals(fromNeg);
+                    // resolvent should contain all the literals from big and negatedTemp, aside from the complementary literals
                     if (!derived.contains(resolvent)) {
                         if (resolvent.size() == 0) {
                             resolvent = Clause.EMPTY;
@@ -256,8 +257,8 @@ public class KBDriver {
                         }
                     }
                 }
-            }
-        }
+            // }
+        // }
         return result.factor();
     }
 
