@@ -58,7 +58,7 @@ public class KBDriver {
                 if (fileName != null) {
                     System.out.print(query);
                 }
-                
+
                 if (PlResolution(kB, query, false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
@@ -130,27 +130,31 @@ public class KBDriver {
         Sentence negAlpha = new UnarySentence(new UnarySentence(alpha));
         negAlpha = convertToCNF(negAlpha);
         Clauses fromNegAlpha = deriveClauses(negAlpha);
-        if (isProof) {
-            System.out.println("Proof:");
-            proofIndex = kB.getProof();
-            for (Clause c : fromNegAlpha) {
-                proofIndex++;
-                c.setProofIndex(proofIndex);
-                System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, c.getClause());
-            }
-        }
+        // if (isProof) {
+        //     System.out.println("Proof:");
+        //     proofIndex = kB.getProof();
+        //     for (Clause c : fromNegAlpha) {
+        //         proofIndex++;
+        //         c.setProofIndex(proofIndex);
+        //         System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, c.getClause());
+        //     }
+        // }
 
         Clauses clauses = new Clauses(kB);
         clauses.addAll(fromNegAlpha);
         clauses.sort();
         Clauses derived = new Clauses();
-        Clauses solution = new Clauses();
+        // Clauses solution = new Clauses();
         while (true) {
             // beginning round
             for (int c1 = 0; c1 < clauses.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < clauses.size(); c2++) {
-                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, solution);
+                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, derived);
                     if (resolvents.contains(Clause.EMPTY)) {
+                        if (isProof) {
+                            Clause solution = resolvents.get(resolvents.indexOf(Clause.EMPTY));
+                            solution.printProof();
+                        }
                         return true;
                     }
                     derived.addAll(resolvents);
@@ -165,7 +169,7 @@ public class KBDriver {
         }
     }
 
-    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses solution) {
+    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses derived/*, Clauses solution*/) {
         Clause small, big;
         Clauses result = new Clauses();
         if (c1.size() <= c2.size()) {
@@ -219,36 +223,22 @@ public class KBDriver {
         
         for (Clause negClause : fromNeg) {
             for (Symbol negatedTemp : negClause) {
-                if (!big.contains(negatedTemp)) {
-                    result.add(big);
-                }
-                else if (big.contains(negatedTemp)) {
-                    big.remove(negatedTemp);
-                    if (!solution.contains(big)) {
-                        proofIndex++;
-                        int oldIndex = big.getProofIndex();
-                        big.setProofIndex(proofIndex);
-                        if (big.size() == 0) {
-                            result.add(Clause.EMPTY);
+                if (big.contains(negatedTemp)) {
+                    Clause resolvent = big.getCopy();
+                    resolvent.remove(negatedTemp);
+                    if (!derived.contains(resolvent)) {
+                        if (resolvent.size() == 0) {
+                            resolvent = Clause.EMPTY;
                         }
-                        else {
-                            result.add(big);
-                        }
-        
-                        if (isProof) {
-                            solution.add(big);
-                            String clausePrint = "()";
-                            if (big.size() != 0) {
-                                clausePrint = big.getClause();
-                            }
-                            String resolvedOn;
-                            if (negatedTemp.isNegated()) {
-                                resolvedOn = negatedTemp.getValue();
-                            }
-                            else {
-                                resolvedOn = String.format("~%s", negatedTemp.getValue());
-                            }
-                            System.out.printf("%d. %-15s [Resolution on %s: %d, %d]\n", proofIndex, clausePrint, resolvedOn, oldIndex, small.getProofIndex());
+                        resolvent.setParent1(small);
+                        resolvent.setParent2(big);
+                        // small.setChild(resolvent);
+                        // big.setChild(resolvent);
+                        // if (isProof)
+                        //     System.out.println(resolvent);
+                        result.add(resolvent);
+                        if (resolvent == Clause.EMPTY) {
+                            return result.factor();
                         }
                     }
                 }

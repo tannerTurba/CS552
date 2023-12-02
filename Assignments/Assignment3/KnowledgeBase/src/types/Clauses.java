@@ -42,6 +42,15 @@ public class Clauses extends ArrayList<Clause> {
         return true;
     }
 
+    public boolean contains(Clause c) {
+        for (Clause s : this) {
+            if (s.getClause().equals(c.getClause())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getProof() {
         StringBuilder sb = new StringBuilder();
         int i;

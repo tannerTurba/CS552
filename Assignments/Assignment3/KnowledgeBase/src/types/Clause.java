@@ -41,7 +41,17 @@ public class Clause extends ArrayList<Symbol> {
     }
 
     public String toString() {
-        return String.format("(%s)", getClause());
+        String str = String.format("(%s)\n", getClause());
+        if (parent1 != null) {
+            str += "  P1: " + parent1.getClause() + "\n";
+        }
+        if (parent2 != null) {
+            str += "  P2: " + parent2.getClause() + "\n";
+        }
+        if (child != null) {
+            str += "  C:  " + child.getClause() + "\n";
+        }
+        return str;
     }
 
     public String getClause() {
@@ -126,4 +136,13 @@ public class Clause extends ArrayList<Symbol> {
         this.child = child;
     }
 
+    public void printProof() {
+        if (parent1 != null) {
+            parent1.printProof();
+        }
+        if (parent2 != null) {
+            parent2.printProof();
+        }
+        System.out.println(toString());
+    }
 }
