@@ -12,7 +12,6 @@ public class Clause extends ArrayList<Symbol> {
     private Clause child = null;
     private int proofIndex = -1;
     private String resolvedOn = "";
-    // private String description = "";
 
     public Clause() {
         super();
@@ -27,7 +26,6 @@ public class Clause extends ArrayList<Symbol> {
         parent2 = clause.getParent2();
         child = clause.getChild();
         resolvedOn = clause.resolvedOn;
-        // description = clause.getDescription();
     }
 
     public Clause(Sentence sentence) {
@@ -92,10 +90,6 @@ public class Clause extends ArrayList<Symbol> {
 
     public Clause getCopy(String description) {
         Clause newC = new Clause(this);
-
-        // if (description != null) {
-        //     newC.setDescription(description);
-        // }
         return newC;
     }
 
@@ -247,19 +241,4 @@ public class Clause extends ArrayList<Symbol> {
     public static void clearExistingProofClauses() {
         existingProofClauses.clear();
     }
-
-    // /**
-    //  * @return String return the description
-    //  */
-    // public String getDescription() {
-    //     return description;
-    // }
-
-    // /**
-    //  * @param description the description to set
-    //  */
-    // public void setDescription(String description) {
-    //     this.description = description;
-    // }
-
 }

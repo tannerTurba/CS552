@@ -4,7 +4,6 @@ package types;
 abstract public class Sentence {
     protected Symbol symbol;
     
-
     public Symbol getSymbol() {
         return symbol;
     }

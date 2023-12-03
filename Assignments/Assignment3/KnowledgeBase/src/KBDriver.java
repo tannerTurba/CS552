@@ -2,8 +2,6 @@ import parser.*;
 import types.*;
 
 public class KBDriver {
-    private int proofIndex = 0;
-
     public static void main(String[] args) {
         System.out.println();
         new KBDriver(args);
@@ -135,15 +133,6 @@ public class KBDriver {
         for (Clause c : fromNegAlpha) {
             negatedGoal.add(c);
         }
-        // if (isProof) {
-        //     System.out.println("Proof:");
-        //     proofIndex = kB.getProof();
-        //     for (Clause c : fromNegAlpha) {
-        //         proofIndex++;
-        //         c.setProofIndex(proofIndex);
-        //         System.out.printf("%d. %-15s [Negated Goal]\n", proofIndex, c.getClause());
-        //     }
-        // }
 
         Clauses clauses = new Clauses(kB);
         for (Clause c : clauses) {
@@ -152,7 +141,6 @@ public class KBDriver {
         clauses.addAll(fromNegAlpha);
         clauses.sort();
         Clauses derived = new Clauses();
-        // Clauses solution = new Clauses();
         while (true) {
             // beginning round
             for (int c1 = 0; c1 < clauses.size(); c1++) {
@@ -161,7 +149,6 @@ public class KBDriver {
                     if (resolvents.contains(Clause.EMPTY)) {
                         if (isProof) {
                             Clause solution = resolvents.get(resolvents.indexOf(Clause.EMPTY));
-                            // System.out.println(solution);
                             solution.printProof(premises, negatedGoal);
                             Clause.clearExistingProofClauses();
                         }
@@ -179,7 +166,7 @@ public class KBDriver {
         }
     }
 
-    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses derived/*, Clauses solution*/) {
+    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses derived) {
         Clause small, big;
         Clauses result = new Clauses();
         if (c1.size() <= c2.size()) {
@@ -230,36 +217,26 @@ public class KBDriver {
         negated = new UnarySentence(new UnarySentence(negated));
         negated = convertToCNF(negated);
         Clauses fromNeg = deriveClauses(negated);
-        
-        // for (Clause negClause : fromNeg) {
-            // for (Symbol negatedTemp : negClause) {
-                if (big.containsComplementaryLiterals(fromNeg)) {
-                    Clause resolvent = big.getCopy("n/a");
-                    resolvent.removeComplementaryLiterals(fromNeg);
-                    // resolvent should contain all the literals from big and negatedTemp, aside from the complementary literals
-                    if (!derived.contains(resolvent)) {
-                        if (resolvent.size() == 0) {
-                            resolvent = Clause.EMPTY;
-                        }
-                        resolvent.setParent1(big.getCopy(null));
-                        resolvent.setParent2(small.getCopy("n/a"));
-                        // small.setChild(resolvent);
-                        // big.setChild(resolvent);
-                        // if (isProof)
-                        //     System.out.println(resolvent);
-                        
-                        if (resolvent == Clause.EMPTY) {
-                            result.add(resolvent);
-                            return result.factor();
-                        }
-                        else {
-                            result.add(resolvent.getCopy(null));
-                            return result.factor();
-                        }
-                    }
+        if (big.containsComplementaryLiterals(fromNeg)) {
+            Clause resolvent = big.getCopy("n/a");
+            resolvent.removeComplementaryLiterals(fromNeg);
+            if (!derived.contains(resolvent)) {
+                if (resolvent.size() == 0) {
+                    resolvent = Clause.EMPTY;
                 }
-            // }
-        // }
+                resolvent.setParent1(big.getCopy(null));
+                resolvent.setParent2(small.getCopy("n/a"));
+                
+                if (resolvent == Clause.EMPTY) {
+                    result.add(resolvent);
+                    return result.factor();
+                }
+                else {
+                    result.add(resolvent.getCopy(null));
+                    return result.factor();
+                }
+            }
+        }
         return result.factor();
     }
 
@@ -268,12 +245,6 @@ public class KBDriver {
         result = eliminateIf(result);
         result = eliminateNOT(result, false);
         result = applyDistributivity(result);
-        // if (result instanceof UnarySentence) {
-        //     UnarySentence us = (UnarySentence)result;
-        //     if (us.nestedSentence != null) {
-        //         return us.nestedSentence;
-        //     }
-        // }
         return result;
     }
 
@@ -337,7 +308,7 @@ public class KBDriver {
             boolean leftIsNegated = binarySentence.getS1().isNegated;
             boolean rightIsNegated = binarySentence.getS2().isNegated;
             if (outterIsNegated) {
-                binarySentence = (BinarySentence)negate(binarySentence, true);
+                binarySentence = (BinarySentence)negate(binarySentence);
             }
 
             UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getS1(), leftIsNegated && !binarySentence.getS1().isLiteral());
@@ -349,20 +320,20 @@ public class KBDriver {
             boolean shouldNegate = unarySentence.isNegated;
             if (outterIsNegated && !(unarySentence.isSymbol() || unarySentence.isLiteral())) {
                 if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof BinarySentence) {
-                    return new UnarySentence((BinarySentence)negate(unarySentence.nestedSentence, shouldNegate));
+                    return new UnarySentence((BinarySentence)negate(unarySentence.nestedSentence));
                 }
                 else if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof UnarySentence) {
-                    return (UnarySentence)negate(unarySentence.nestedSentence, shouldNegate);
+                    return (UnarySentence)negate(unarySentence.nestedSentence);
                 }
                 else if (unarySentence.nestedUnary != null) {
-                    return new UnarySentence(negate(unarySentence.nestedUnary.nestedSentence, shouldNegate));
+                    return new UnarySentence(negate(unarySentence.nestedUnary.nestedSentence));
                 }
                 else {
-                    return (UnarySentence)negate(unarySentence, shouldNegate);
+                    return (UnarySentence)negate(unarySentence);
                 }
             }
             else if (outterIsNegated && (unarySentence.isSymbol() || unarySentence.isLiteral())) {
-                return negate(unarySentence, shouldNegate);
+                return negate(unarySentence);
             }
             
             if (unarySentence.isSymbol() || unarySentence.isLiteral()) {
@@ -380,7 +351,7 @@ public class KBDriver {
         }
     }
 
-    public Sentence negate(Sentence sentence, boolean outterIsNegated) { 
+    public Sentence negate(Sentence sentence) { 
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
             if (binary.getConnective() == BinaryConnective.AND) {
@@ -517,7 +488,6 @@ public class KBDriver {
             BinarySentence binary = (BinarySentence)sentence;
             UnarySentence left = (UnarySentence)binary.getS1();
             UnarySentence right = (UnarySentence)binary.getS2();
-
 
             if (binary.getConnective() == BinaryConnective.AND) {
                 Clauses fromLeft = deriveClauses(left);
