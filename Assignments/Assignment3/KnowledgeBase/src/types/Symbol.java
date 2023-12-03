@@ -10,10 +10,6 @@ public class Symbol {
         this.isNegated = isNegated;
     }
 
-    // public void setNegate(boolean condi) {
-    //     isNegated = condi;
-    // }
-
     public void negate() {
         isNegated = !isNegated;
     }

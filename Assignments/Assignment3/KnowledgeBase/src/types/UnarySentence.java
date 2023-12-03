@@ -49,6 +49,55 @@ public class UnarySentence extends Sentence {
     }
 
     public boolean isLiteral() {
-        return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null && nestedUnary.nestedSentence == null;
+        if (isSymbol()) {
+            return true;
+        }
+        if (isNegated && nestedUnary != null) {
+            if (nestedUnary.nestedSentence != null) {
+                return false;
+            }
+            return nestedUnary.isLiteral();
+        }
+        return false;
+    }
+
+    // Precondition: This is a literal
+    public UnarySentence getLiteralValue() {
+        int negCount = countNegations();
+        UnarySentence sym = getNestedSymbol();
+
+        if (negCount % 2 == 0) {
+            return sym;
+        }
+        return new UnarySentence(sym);
+    }
+
+    private int countNegations() {
+        if (isSymbol()) {
+            return 0;
+        }
+        return 1 + nestedUnary.countNegations();
+    }
+
+    private UnarySentence getNestedSymbol() {
+        if (isSymbol()) {
+            // P == P
+            return this;
+        }
+        return nestedUnary.getNestedSymbol();
+    }
+
+    public void parse(String prefix, int indent) {
+        if (nestedSentence == null && this.nestedUnary == null) {
+            System.out.printf(" %s: [%s] Unary [symbol]: [%s]\n".indent(indent), prefix, this, this.getSymbol());
+        }
+        else if (nestedSentence != null) {
+            System.out.printf(" %s: [%s] Unary [()]\n".indent(indent), prefix, this);
+            nestedSentence.parse("Sub", indent+2);
+        }
+        else if (this.isNegated) {
+            System.out.printf(" %s: [%s] Unary [~]\n".indent(indent), prefix, this);
+            nestedUnary.parse("Sub", indent+2);
+        }
     }
 }

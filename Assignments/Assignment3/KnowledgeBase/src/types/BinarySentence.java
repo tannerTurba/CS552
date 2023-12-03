@@ -28,9 +28,10 @@ public class BinarySentence extends Sentence {
     public UnarySentence getS2() {
         return s2;
     }
-
-    // @Override
-    // public Symbol asNegated() {
-        
-    // }
+    
+    public void parse(String prefix, int indent) {
+        System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, this.toString(), this.getConnective().toString());
+        s1.parse("LHS", indent);
+        s2.parse("RHS", indent);
+    }
 }

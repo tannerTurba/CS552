@@ -3,7 +3,7 @@ package types;
 import java.util.*;
 
 //Can be used as a CNFSentence.
-public class Clauses extends ArrayList<Clause>{
+public class Clauses extends ArrayList<Clause> {
     public Clauses() {
         super();
     }
@@ -15,11 +15,16 @@ public class Clauses extends ArrayList<Clause>{
         }
     }
 
+    public Clauses(Clause clauseToAdd) {
+        super();
+        add(clauseToAdd);
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size(); i++) {
             if (i + 1 != size()) {
-                sb.append(String.format("%s\n", get(i).toString()));
+                sb.append(String.format("%s ^ ", get(i).toString().trim()));
             }
             else {
                 sb.append(get(i).toString());
@@ -37,6 +42,15 @@ public class Clauses extends ArrayList<Clause>{
         return true;
     }
 
+    public boolean contains(Clause c) {
+        for (Clause s : this) {
+            if (s.getClause().equals(c.getClause())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getProof() {
         StringBuilder sb = new StringBuilder();
         int i;
@@ -51,5 +65,32 @@ public class Clauses extends ArrayList<Clause>{
         }
         System.out.println(sb.toString());
         return i;
+    }
+
+    public boolean add(Clause clause) {
+        boolean isAdded = super.add(clause);
+        sort();
+        return isAdded;
+    }
+
+    public void sort() {
+        sort(new Comparator<Clause>() {
+
+            @Override
+            public int compare(Clause o1, Clause o2) {
+                return o2.size() - o1.size();
+            }
+            
+        });
+    }
+
+    public Clauses factor() {
+        Clauses result = new Clauses();
+        for (Clause c : this) {
+            if (!result.contains(c)) {
+                result.add(c);
+            }
+        }
+        return result;
     }
 }

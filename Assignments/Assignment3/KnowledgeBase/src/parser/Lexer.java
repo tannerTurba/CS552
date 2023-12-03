@@ -50,16 +50,15 @@ public class Lexer {
 			} catch (IOException e) {
 				System.err.println(e);
 				System.exit(1);
-			} // try
+			}
 			if (line == null) // at end of file
 				line = "" + eofCh;
 			else {
-				// System.out.println(lineno + ":\t" + line);
 				lineno++;
 				line += eolnCh;
-			} // if line
+			} 
 			col = 0;
-		} // if col
+		}
 		return line.charAt(col);
 	}
 
