@@ -29,14 +29,14 @@ public class BinarySentence extends Sentence {
         return s2;
     }
 
-    public BinarySentence negate() {
-        if (connector == BinaryConnective.AND) {
-            return new BinarySentence(s1.negate(), BinaryConnective.OR, s2.negate());
-        }
-        else {
-            return new BinarySentence(s1.negate(), BinaryConnective.AND, s2.negate());
-        }
-    }
+    // public BinarySentence negate() {
+    //     if (connector == BinaryConnective.AND) {
+    //         return new BinarySentence(s1.negate(), BinaryConnective.OR, s2.negate());
+    //     }
+    //     else {
+    //         return new BinarySentence(s1.negate(), BinaryConnective.AND, s2.negate());
+    //     }
+    // }
 
     public void parse(String prefix, int indent) {
         System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, this.toString(), this.getConnective().toString());

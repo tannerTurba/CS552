@@ -49,29 +49,80 @@ public class UnarySentence extends Sentence {
     }
 
     public boolean isLiteral() {
-        return isSymbol() || isNegated && nestedUnary != null && nestedSentence == null && nestedUnary.nestedSentence == null;
+        if (isSymbol()) {
+            return true;
+        }
+        if (isNegated && nestedUnary != null) {
+            if (nestedUnary.nestedSentence != null) {
+                return false;
+            }
+            return nestedUnary.isLiteral();
+        }
+        return false;
     }
 
-    public UnarySentence negate() {
-        if (isSymbol()) {
-            // a -> ~a
-            return new UnarySentence(this);
+    // Precondition: This is a literal
+    public UnarySentence getLiteralValue() {
+        // if (isSymbol()) {
+        //     // P == P
+        //     return this;
+        // }
+        // else if (this.nestedUnary.isSymbol()) {
+        //     // ~P == ~P
+        //     return this;
+        // }
+        // else if (this.nestedUnary.nestedUnary.isSymbol()) {
+        //     // ~~P == P
+        //     return this.nestedUnary.nestedUnary;
+        // }
+        // else {
+        //     return nestedUnary.getLiteralValue();
+        // }
+
+        int negCount = countNegations();
+        UnarySentence sym = getNestedSymbol();
+
+        if (negCount % 2 == 0) {
+            return sym;
         }
-        else if (isLiteral()) {
-            // ~a -> a
-            return nestedUnary;
-        }
-        else if (nestedUnary != null && nestedUnary.nestedSentence != null) {
-            // ~(a) -> (a)
-            return nestedUnary;
-        }
-        else if (nestedUnary == null && nestedSentence != null) {
-            // (a) -> ~(a)
-            return new UnarySentence(this);
-        }
-        // ???
-        return this;
+        return new UnarySentence(sym);
     }
+
+    private int countNegations() {
+        if (isSymbol()) {
+            return 0;
+        }
+        return 1 + nestedUnary.countNegations();
+    }
+
+    private UnarySentence getNestedSymbol() {
+        if (isSymbol()) {
+            // P == P
+            return this;
+        }
+        return nestedUnary.getNestedSymbol();
+    }
+
+    // public UnarySentence negate() {
+    //     if (isSymbol()) {
+    //         // a -> ~a
+    //         return new UnarySentence(this);
+    //     }
+    //     else if (isLiteral()) {
+    //         // ~a -> a
+    //         return nestedUnary;
+    //     }
+    //     else if (nestedUnary != null && nestedUnary.nestedSentence != null) {
+    //         // ~(a) -> (a)
+    //         return nestedUnary;
+    //     }
+    //     else if (nestedUnary == null && nestedSentence != null) {
+    //         // (a) -> ~(a)
+    //         return new UnarySentence(this);
+    //     }
+    //     // ???
+    //     return this;
+    // }
 
     public void parse(String prefix, int indent) {
         if (nestedSentence == null && this.nestedUnary == null) {

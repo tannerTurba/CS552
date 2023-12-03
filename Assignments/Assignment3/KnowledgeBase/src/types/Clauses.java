@@ -24,7 +24,7 @@ public class Clauses extends ArrayList<Clause> {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size(); i++) {
             if (i + 1 != size()) {
-                sb.append(String.format("%s\n", get(i).toString()));
+                sb.append(String.format("%s ^ ", get(i).toString().trim()));
             }
             else {
                 sb.append(get(i).toString());

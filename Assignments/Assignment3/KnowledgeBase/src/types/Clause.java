@@ -244,6 +244,10 @@ public class Clause extends ArrayList<Symbol> {
         }
     }
 
+    public static void clearExistingProofClauses() {
+        existingProofClauses.clear();
+    }
+
     // /**
     //  * @return String return the description
     //  */
