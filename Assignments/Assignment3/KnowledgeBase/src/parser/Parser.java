@@ -1,3 +1,11 @@
+/*
+ * Tanner Turba
+ * December 4, 2023
+ * CS 552 - Artificial Intelligence - Assignment 3
+ * 
+ * This is the parser that is used to derive meaning from Tokens that are 
+ * received from the Lexer.
+ */
 package parser;
 
 import types.*;
@@ -6,53 +14,76 @@ public class Parser {
     Token token;
     Lexer lexer;
 
-    public Parser(Lexer ts) {
-        lexer = ts;
+    /**
+     * Creates a parser
+     * @param l the lexer to use
+     */
+    public Parser(Lexer l) {
+        lexer = l;
         token = lexer.next();
     }
 
+    /**
+     * Closes the parser
+     */
     public void close() {
         lexer.close();
     }
 
+    /**
+     * Gets a command string, which will tell the KBDriver what to do
+     * @return a command string
+     */
     public String getCommand() {
+        // Consume all leading white space
         if (token.equals(Token.eofTok)) {
             return "EOF";
         }
         while (token.equals(Token.eolnTok)) {
             token = lexer.next();
         }
-        String cmd = token.value();
+
+        // Get the value of the token and return
+        String cmd = token.getValue();
         lexer.setSpaceDelimited(false);
         token = lexer.next();
         return cmd;
     }
   
-    private String match (TokenType t) {
-        String value = token.value();
-        if (token.type().equals(t)) {
+    /**
+     * Make sure the Token matches a specific type before getting
+     * the next Token
+     * @param t the desired TokenType
+     * @return the Token as a String
+     */
+    private String match(TokenType t) {
+        String value = token.getValue();
+        if (token.getType().equals(t)) {
             token = lexer.next();
         } else {
-            error(t);
+            //print error and exit execution
+            System.err.println("Syntax error: expecting: " + t 
+                           + "; saw: " + token);
+            System.exit(1);
         }
         return value;
     }
- 
-    private void error(TokenType tok) {
-        System.err.println("Syntax error: expecting: " + tok 
-                           + "; saw: " + token);
-        System.exit(1);
-    }
 
+    /**
+     * Gets a clause from the lexer
+     * @return a Clause
+     */
     public Clause getClause() {
         Clause c = new Clause();
         while (!token.equals(Token.eolnTok)) {
-            if (token.type() == TokenType.Symbol) {
-                c.add(new Symbol(token.value(), false));
+            // a
+            if (token.getType() == TokenType.Symbol) {
+                c.add(new Symbol(token.getValue(), false));
             }
+            // ~a
             else if (token.equals(Token.notTok)) {
                 token = lexer.next();
-                c.add(new Symbol(token.value(), true));
+                c.add(new Symbol(token.getValue(), true));
             }
             token = lexer.next();
         }
@@ -60,7 +91,12 @@ public class Parser {
         return c;
     }
   
-    // Sentence ::= UnarySentence | BinarySentence
+    /**
+     * Gets a Sentence from the input which is defines as the following:
+     * Sentence ::= UnarySentence 
+     *            | BinarySentence
+     * @return a Sentence
+     */
     public Sentence getSentence() {
         Sentence s = getBinarySentence();
         lexer.setSpaceDelimited(true);
@@ -68,11 +104,17 @@ public class Parser {
         return s;
     }
 
-    // BinarySentence ::= UnarySentence ^ UnarySentence | UnarySentence v UnarySentence | UnarySentence => UnarySentence | UnarySentence <=> UnarySentence
+    /**
+     * Gets a BinarySentence from the input, which is defined as the following:
+     * BinarySentence ::= UnarySentence ^ UnarySentence
+     *                  | UnarySentence v UnarySentence
+     *                  | UnarySentence => UnarySentence
+     *                  | UnarySentence <=> UnarySentence
+     * @return a BinarySentence
+     */
     public Sentence getBinarySentence() {
-        UnarySentence s1 = getUnarySentence();
+        UnarySentence left = getUnarySentence();
 
-        // Token token = lexer.next();
         BinaryConnective binaryConnector;
         if (token.equals(Token.andTok)) {
             binaryConnector = BinaryConnective.AND;
@@ -87,35 +129,47 @@ public class Parser {
             binaryConnector = BinaryConnective.IFF;
         }
         else {
-            return s1;
+            // No BinaryConnective, so it must be a UnarySentence. Return left
+            return left;
         }
         
         token = lexer.next();
-        UnarySentence s2 = getUnarySentence();
-        return new BinarySentence(s1, binaryConnector, s2);
+        UnarySentence right = getUnarySentence();
+        return new BinarySentence(left, binaryConnector, right);
     }
 
-    // UnarySentence ::= Symbol | (Sentence) | ~UnarySentence
+    /**
+     * Gets a UnarySentence from the input, which is defined as the following:
+     * UnarySentence ::= Symbol 
+     *                 | (Sentence) 
+     *                 | ~UnarySentence
+     * @return a UnarySentence
+     */
     public UnarySentence getUnarySentence() {
+        // (<Sentence>)
         if (token.equals(Token.leftParenTok)) {
             token = lexer.next();
             Sentence sentence = getBinarySentence();
             token = lexer.next(); //Consume closing parens
-            // token = lexer.next();
             return new UnarySentence(sentence);
         }
+        // ~ <Symbol>
         else if (token.equals(Token.notTok)) {
             token = lexer.next();
             UnarySentence unarySentence = getUnarySentence();
-            // token = lexer.next();
             return new UnarySentence(unarySentence);
         }
+        // <Symbol>
         else {
             return new UnarySentence(getSymbol());
         }
     }
 
-    // Symbol ::= P | Q | R ...
+    /**
+     * Gets a Symbol from the input, which can be defined as the following:
+     * Symbol ::= P | Q | R ...
+     * @return
+     */
     public Symbol getSymbol() {
         String val = match(TokenType.Symbol);
         return new Symbol(val, false);

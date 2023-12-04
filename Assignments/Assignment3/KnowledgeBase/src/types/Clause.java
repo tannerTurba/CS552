@@ -1,3 +1,13 @@
+/*
+ * Tanner Turba
+ * December 4, 2023
+ * CS 552 - Artificial Intelligence - Assignment 3
+ * 
+ * This is the class that represents a Clause, which 
+ * is made of many symbols OR'd together. Extends an 
+ * ArrayList of Symbols to simplify this representation.
+ */
+
 package types;
 
 import java.util.ArrayList;
@@ -7,16 +17,24 @@ public class Clause extends ArrayList<Symbol> {
     public static Clause EMPTY = new Clause();
     private static int proofNum = 1;
     private static Clauses existingProofClauses = new Clauses();
+    /* Object specific data for creating proofs */
     private Clause parent1 = null;
     private Clause parent2 = null;
     private Clause child = null;
     private int proofIndex = -1;
     private String resolvedOn = "";
 
+    /**
+     * Creates a new Clause
+     */
     public Clause() {
         super();
     }
 
+    /**
+     * Creates a new Clause
+     * @param clause Clause to combine with the new Clause
+     */
     public Clause(Clause clause) {
         super();
         this.addAll(clause);
@@ -28,41 +46,46 @@ public class Clause extends ArrayList<Symbol> {
         resolvedOn = clause.resolvedOn;
     }
 
+    /**
+     * Creates a new Clause
+     * @param sentence the Sentence to add to the new Clause
+     */
     public Clause(Sentence sentence) {
         super();
         this.add(sentence.getSymbol());
     }
 
-    public Clause(Symbol symbol, int proofIndex) {
-        super();
-        this.add(symbol);
-        this.proofIndex = proofIndex;
-    }
-
+    /**
+     * Gets the proof index
+     * @return the index of this Clause in the proof
+     */
     public int getProofIndex() {
         return proofIndex;
     }
 
+    /**
+     * Sets the proof index
+     * @param index the new index of this Clause in the proof
+     */
     public void setProofIndex(int index) {
         proofIndex = index;
     }
 
+    /**
+     * Gets the String representation of this Clause
+     * @return All Symbols in this Clause OR'd together
+     */
     public String toString() {
-        String str = String.format("(%s)\n", getClause());
-        if (parent1 != null) {
-            str += "  P1: " + parent1.toString() + "\n";
-        }
-        if (parent2 != null) {
-            str += "  P2: " + parent2.toString() + "\n";
-        }
-        if (child != null) {
-            str += "  C:  " + child.toString() + "\n";
-        }
-        return str;
+        return String.format("(%s)\n", getClause());
     }
 
+    /**
+     * Gets the String representation of this Clause
+     * @return all the Symbols OR'd together
+     */
     public String getClause() {
         StringBuilder sb = new StringBuilder();
+        // Only put an OR between symbols.
         for (int i = 0; i < size(); i++) {
             if (i + 1 != size()) {
                 sb.append(String.format("%s v ", get(i)));
@@ -74,25 +97,44 @@ public class Clause extends ArrayList<Symbol> {
         return String.format("%s", sb.toString());
     }
 
+    /**
+     * Adds a Symbol to the Clause
+     * @return true if the Symbol was added
+     */
     public boolean add(Symbol symbol) {
         boolean retVal = super.add(symbol);
-        sort();
+        sort();    // Sort after insertion to maintain order
         return retVal;
     }
 
+    /**
+     * Alphanumerically sorts this Clause
+     */
     public void sort() {
         sort(Comparator.comparing(s -> s.getValue().toLowerCase()));
     }
 
+    /**
+     * Determines if this Clause is equal to another object.
+     * @return true if equal
+     */
     public boolean equals(Object s) {
         return this.toString().equals(s.toString());
     }
 
-    public Clause getCopy(String description) {
-        Clause newC = new Clause(this);
-        return newC;
+    /**
+     * Gets a copy of this Clause
+     * @return the copy of the Clause
+     */
+    public Clause getCopy() {
+        return new Clause(this);
     }
 
+    /**
+     * Determines if this Clause contains the specified Symbol
+     * @param symbol the Symbol to look for
+     * @return true if this Clause contains the Symbol
+     */
     public boolean contains(Symbol symbol) {
         for (Symbol s : this) {
             if (s.equals(symbol)) {
@@ -102,6 +144,11 @@ public class Clause extends ArrayList<Symbol> {
         return false;
     }
     
+    /**
+     * Determines if another Clause contains a complementary literal or Symbol in this Clause
+     * @param clause the Clause to look in
+     * @return true if the other Clause contains a complementary literal or Symbol in this Clause
+     */
     public boolean containsComplementaryLiteral(Clause clause) {
         for (Symbol s : clause) {
             if (this.contains(s)) {
@@ -112,6 +159,11 @@ public class Clause extends ArrayList<Symbol> {
         return false;
     }
 
+    /**
+     * Determines if a set of Clauses contains a complementary literal or Symbol in this Clause
+     * @param clauses the set of Clauses to check
+     * @return true if the set of Clauses contains a complementary literal or Symbol in this Clause
+     */
     public boolean containsComplementaryLiterals(Clauses clauses) {
         for (Clause c : clauses) {
             if (this.containsComplementaryLiteral(c)) {
@@ -121,6 +173,10 @@ public class Clause extends ArrayList<Symbol> {
         return false;
     }
 
+    /**
+     * Removes any complementary literals(Symbols) from this Clause
+     * @param clause the Clause to check
+     */
     public void removeComplementaryLiteral(Clause clause) {
         for (Symbol s : clause) {
             if (this.contains(s)) {
@@ -132,6 +188,10 @@ public class Clause extends ArrayList<Symbol> {
         }
     }
 
+    /**
+     * Removes any complementary literals(Symbols) from this Clauses
+     * @param clauses the set of Clauses to check
+     */
     public void removeComplementaryLiterals(Clauses clauses) {
         for (Clause c : clauses) {
             if (this.containsComplementaryLiteral(c)) {
@@ -188,12 +248,23 @@ public class Clause extends ArrayList<Symbol> {
         this.child = child;
     }
 
+    /**
+     * Prints the proof of the resolution if one exists
+     * @param premises the set of known premises
+     * @param negated the set of known negated goals
+     */
     public void printProof(Clauses premises, Clauses negated) { 
         proof(premises, negated);
-        proofNum = 1;
+        proofNum = 1;   // Reset proof index after printing
     }
 
+    /**
+     * The recursive helper method to print the proof
+     * @param premises the set of known premises
+     * @param negated the set of known negated goals
+     */
     private void proof(Clauses premises, Clauses negated) {
+        // recurse if there are any parents of this node.
         if (parent1 != null) {
             parent1.proof(premises, negated);
         }
@@ -201,6 +272,7 @@ public class Clause extends ArrayList<Symbol> {
             parent2.proof(premises, negated);
         }
         
+        // get necessary values for printing.
         String clause = "()";
         if (this != Clause.EMPTY) {
             clause = getClause();
@@ -209,6 +281,7 @@ public class Clause extends ArrayList<Symbol> {
             resolvedOn = parent1.getClause();
         }
 
+        // if there isn't a line in the proof for this Clause, create a description and print
         if (!existingProofClauses.contains(this)) {
             String description = "";
             if (premises.contains(this)) {
@@ -238,6 +311,9 @@ public class Clause extends ArrayList<Symbol> {
         }
     }
 
+    /**
+     * Clear the existing Clauses in the proof. Used after a proof is printed.
+     */
     public static void clearExistingProofClauses() {
         existingProofClauses.clear();
     }

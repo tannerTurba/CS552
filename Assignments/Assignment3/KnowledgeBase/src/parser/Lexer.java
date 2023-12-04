@@ -1,3 +1,11 @@
+/*
+ * Tanner Turba
+ * December 4, 2023
+ * CS 552 - Artificial Intelligence - Assignment 3
+ * 
+ * This is the lexer that is used to derive symbols from input String.
+ * Can be configured to take input from a file or from user input.
+ */
 package parser;
 
 import java.io.*;
@@ -18,20 +26,30 @@ public class Lexer {
 	private final char eofCh = '\004';
 	private boolean isSpaceDelimited = true;
 
-	public Lexer(String fileName) {
+	/**
+	 * Creates a lexer that reads from a file
+	 * @param filePath the filepath to read from
+	 */
+	public Lexer(String filePath) {
 		try {
-			input = new BufferedReader(new FileReader(fileName));
+			input = new BufferedReader(new FileReader(filePath));
 		}
 		catch (FileNotFoundException e) {
-			System.out.println("File not found: " + fileName);
+			System.out.println("File not found: " + filePath);
 			System.exit(1);
 		}
 	}
 
+	/**
+	 * Creates a lexer that reads from user input
+	 */
 	public Lexer() {
 		input = new BufferedReader(new InputStreamReader(System.in));
 	}
 
+	/**
+	 * Closes the lexer
+	 */
 	public void close() {
 		try {
 			input.close();
@@ -40,18 +58,27 @@ public class Lexer {
 		}
 	}
 
-	private char nextChar() { // Return next char
+	/**
+	 * Gets the next character 
+	 * @return the next character
+	 */
+	private char nextChar() {
 		if (ch == eofCh)
 			error("Attempt to read past end of file");
 		col++;
+
+		// If column counter exceeds the number of characters in the line
 		if (col >= line.length()) {
+			// Try to read line
 			try {
 				line = input.readLine( );
 			} catch (IOException e) {
 				System.err.println(e);
 				System.exit(1);
 			}
-			if (line == null) // at end of file
+
+			// Set line to EOF, which will eventually return to caller
+			if (line == null)
 				line = "" + eofCh;
 			else {
 				lineno++;
@@ -62,12 +89,16 @@ public class Lexer {
 		return line.charAt(col);
 	}
 
-
-	public Token next() { // Return next token
+	/**
+	 * Gets the next Token from the input
+	 * @return a Token
+	 */
+	public Token next() {
 		do {
-			if (isLetter(ch) || isDigit(ch)) { // ident or keyword
+			// keyword
+			if (isLetter(ch) || isDigit(ch)) {
 				String spelling = concat(letters + digits);
-				return Token.keyword(spelling);
+				return Token.symbol(spelling);
 			}
             else {
 				switch (ch) {			
@@ -103,7 +134,9 @@ public class Lexer {
 						ch = nextChar();
 						return Token.orTok;
 					case '=':
-                        check('>');
+						if (ch != '>') 
+							error("Illegal character, expecting =");
+						ch = nextChar();
 						return Token.ifTok;
 					case '<':
 						ch = nextChar();
@@ -123,31 +156,41 @@ public class Lexer {
 		} while (true);
 	} 
 
-
+	/**
+	 * Determines if a character is a valid letter
+	 * @param c the character to test
+	 * @return true if c is a valid letter
+	 */
 	private boolean isLetter(char c) {
 		return letters.contains(c + "");
 	}
 
+	/**
+	 * Determines if a character is a valid digit
+	 * @param c the character to test
+	 * @return true if c is a valid digit
+	 */
 	private boolean isDigit(char c) {
 		return Character.isDigit( c );
 	}
 
-	private void check(char c) {
-		ch = nextChar();
-		if (ch != c) 
-			error("Illegal character, expecting " + c);
-		ch = nextChar();
-	}
-
+	/**
+	 * Concatenates characters together until one that is not a part of 
+	 * the identified set is read
+	 * @param set The set of valid characters
+	 * @return the resulting String
+	 */
 	private String concat(String set) {
 		String r = "";
 		if (isSpaceDelimited) {
+			// concatenate until a space or invalid character is found.
 			do {
 				r += ch;
 				ch = nextChar();
 			} while (set.indexOf(ch) >= 0);
 		}
 		else {
+			// concatenate until an invalid character is found.
 			do {
 				if (set.indexOf(ch) >= 0) {
 					r += ch;
@@ -161,10 +204,18 @@ public class Lexer {
 		return r;
 	}
 
+	/**
+	 * Set whether or not space delimiting should be enforeced
+	 * @param isSpaceDelimited true if space delimiting should be enforeced
+	 */
 	public void setSpaceDelimited(boolean isSpaceDelimited) {
 		this.isSpaceDelimited = isSpaceDelimited;
 	}
 
+	/**
+	 * Prints an error message to the console
+	 * @param msg the error message
+	 */
 	public void error (String msg) {
 		System.err.print(line);
 		System.err.println("Error: column " + col + " " + msg);

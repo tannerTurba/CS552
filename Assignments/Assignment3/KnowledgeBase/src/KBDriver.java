@@ -2,11 +2,19 @@ import parser.*;
 import types.*;
 
 public class KBDriver {
+    /**
+     * Starts program execution
+     * @param args
+     */
     public static void main(String[] args) {
         System.out.println();
         new KBDriver(args);
     }
 
+    /**
+     * Initializes an instance of KBDriver
+     * @param args should contain the filepath, if desired
+     */
     public KBDriver(String[] args) {
         String fileName;
         if (args.length > 0) {
@@ -16,6 +24,7 @@ public class KBDriver {
             fileName = null;
         }
         
+        // Create parser
         Parser parser;
         if (fileName != null) {
             parser = new Parser(new Lexer(fileName));
@@ -27,17 +36,21 @@ public class KBDriver {
             System.out.println("(type HELP for more information)");
         }
 
+        // Initialize knowledge base to add data to
         Clauses kB = new Clauses();
         while (true) {
+            // If reading from input, prompt '>'
             if (fileName == null) {
                 System.out.print("> ");
             }
             String cmd = parser.getCommand();
 
+            // If reading from file, show command
             if (fileName != null && !cmd.equalsIgnoreCase("eof")) {
                 System.out.printf("> %s ", cmd.toUpperCase());
             }
     
+            // Continue based on command
             if (cmd.equalsIgnoreCase("tellc")) {
                 Clause clause = parser.getClause();
                 if (fileName != null) {
@@ -57,6 +70,7 @@ public class KBDriver {
                     System.out.print(query + "\n");
                 }
 
+                // Determine if KB entails the query
                 if (PlResolution(kB, query, false)) {
                     System.out.printf("Yes, KB entails %s\n", query.toString());
                 }
@@ -70,6 +84,7 @@ public class KBDriver {
                     System.out.print(query + "\n");
                 }
 
+                // Print proof if a solution exists
                 if (!PlResolution(kB, query, false)) {
                     System.out.println("No proof exists");
                 }
@@ -82,6 +97,8 @@ public class KBDriver {
                 if (fileName != null) {
                     System.out.print(sentence + "\n");
                 }
+
+                // Convert sentence to CNF and derive clauses to add to the KB
                 sentence = convertToCNF(sentence);
                 kB.addAll(deriveClauses(sentence));
             }
@@ -91,6 +108,7 @@ public class KBDriver {
                     System.out.print(sentence.toString() + "\n");
                 }
 
+                // Convert sentence to CNF and derive clauses
                 sentence = convertToCNF(sentence);
                 Clauses x = deriveClauses(sentence);
                 System.out.println("Result: " + x.toString().trim());
@@ -101,6 +119,7 @@ public class KBDriver {
                     System.out.print(sentence + "\n");
                 }
 
+                // parse the sentence
                 sentence.parse();;
             }
             else if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("done") || cmd.equalsIgnoreCase("quit")) {
@@ -124,6 +143,13 @@ public class KBDriver {
         parser.close();
     }
 
+    /**
+     * 
+     * @param kB
+     * @param alpha
+     * @param isProof
+     * @return
+     */
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
         Clauses premises = new Clauses();
         Clauses negatedGoal = new Clauses();
@@ -145,7 +171,7 @@ public class KBDriver {
             // beginning round
             for (int c1 = 0; c1 < clauses.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < clauses.size(); c2++) {
-                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(null), clauses.get(c2).getCopy(null), isProof, derived);
+                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, derived);
                     if (resolvents.contains(Clause.EMPTY)) {
                         if (isProof) {
                             Clause solution = resolvents.get(resolvents.indexOf(Clause.EMPTY));
@@ -218,21 +244,21 @@ public class KBDriver {
         negated = convertToCNF(negated);
         Clauses fromNeg = deriveClauses(negated);
         if (big.containsComplementaryLiterals(fromNeg)) {
-            Clause resolvent = big.getCopy("n/a");
+            Clause resolvent = big.getCopy();
             resolvent.removeComplementaryLiterals(fromNeg);
             if (!derived.contains(resolvent)) {
                 if (resolvent.size() == 0) {
                     resolvent = Clause.EMPTY;
                 }
-                resolvent.setParent1(big.getCopy(null));
-                resolvent.setParent2(small.getCopy("n/a"));
+                resolvent.setParent1(big.getCopy());
+                resolvent.setParent2(small.getCopy());
                 
                 if (resolvent == Clause.EMPTY) {
                     result.add(resolvent);
                     return result.factor();
                 }
                 else {
-                    result.add(resolvent.getCopy(null));
+                    result.add(resolvent.getCopy());
                     return result.factor();
                 }
             }
@@ -251,8 +277,8 @@ public class KBDriver {
     private Sentence eliminateIff(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getS1());
-            UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getS2());
+            UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getLeft());
+            UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getRight());
             if (binarySentence.getConnective() == BinaryConnective.IFF) {
                 BinarySentence s1 = new BinarySentence(u1, BinaryConnective.IF, u2);
                 BinarySentence s2 = new BinarySentence(u2, BinaryConnective.IF, u1);
@@ -279,8 +305,8 @@ public class KBDriver {
     private Sentence eliminateIf(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getS1());
-            UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getS2());
+            UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getLeft());
+            UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getRight());
             BinaryConnective connective = binarySentence.getConnective();
             if (binarySentence.getConnective() == BinaryConnective.IF) {
                 UnarySentence left = new UnarySentence(u1);
@@ -305,14 +331,14 @@ public class KBDriver {
     private Sentence eliminateNOT(Sentence sentence, boolean outterIsNegated) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            boolean leftIsNegated = binarySentence.getS1().isNegated;
-            boolean rightIsNegated = binarySentence.getS2().isNegated;
+            boolean leftIsNegated = binarySentence.getLeft().isNegated;
+            boolean rightIsNegated = binarySentence.getRight().isNegated;
             if (outterIsNegated) {
                 binarySentence = (BinarySentence)negate(binarySentence);
             }
 
-            UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getS1(), leftIsNegated && !binarySentence.getS1().isLiteral());
-            UnarySentence right = (UnarySentence)eliminateNOT(binarySentence.getS2(), rightIsNegated && !binarySentence.getS2().isLiteral());
+            UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getLeft(), leftIsNegated && !binarySentence.getLeft().isLiteral());
+            UnarySentence right = (UnarySentence)eliminateNOT(binarySentence.getRight(), rightIsNegated && !binarySentence.getRight().isLiteral());
             return new BinarySentence(left, binarySentence.getConnective(), right);
         }
         else {
@@ -355,10 +381,10 @@ public class KBDriver {
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
             if (binary.getConnective() == BinaryConnective.AND) {
-                return new BinarySentence((UnarySentence)eliminateNOT(binary.getS1(), true), BinaryConnective.OR, (UnarySentence)eliminateNOT(binary.getS2(), true));
+                return new BinarySentence((UnarySentence)eliminateNOT(binary.getLeft(), true), BinaryConnective.OR, (UnarySentence)eliminateNOT(binary.getRight(), true));
             }
             else {
-                return new BinarySentence((UnarySentence)eliminateNOT(binary.getS1(), true), BinaryConnective.AND, (UnarySentence)eliminateNOT(binary.getS2(), true));
+                return new BinarySentence((UnarySentence)eliminateNOT(binary.getLeft(), true), BinaryConnective.AND, (UnarySentence)eliminateNOT(binary.getRight(), true));
             }
         }
         else {
@@ -388,14 +414,14 @@ public class KBDriver {
     private Sentence applyDistributivity(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
-            UnarySentence s1 = binarySentence.getS1();
-            UnarySentence s2 = binarySentence.getS2();
+            UnarySentence s1 = binarySentence.getLeft();
+            UnarySentence s2 = binarySentence.getRight();
             UnarySentence a = null, b = null, c = null, d = null;
 
             if (s1.nestedSentence != null && s1.nestedSentence instanceof BinarySentence) {
                 //(a ^ b) v c 
-                a = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getS1());
-                b = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getS2());
+                a = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getLeft());
+                b = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getRight());
             }
             else {
                 // a v c
@@ -405,8 +431,8 @@ public class KBDriver {
 
             if (s2.nestedSentence != null && s2.nestedSentence instanceof BinarySentence) {
                 // a v (c ^ d)
-                c = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getS1());
-                d = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getS2());
+                c = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getLeft());
+                d = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getRight());
             }
             else {
                 // a v c
@@ -468,8 +494,8 @@ public class KBDriver {
                     return binarySentence;
                 }
             }
-            UnarySentence left = (UnarySentence)applyDistributivity(binarySentence.getS1());
-            UnarySentence right = (UnarySentence)applyDistributivity(binarySentence.getS2());
+            UnarySentence left = (UnarySentence)applyDistributivity(binarySentence.getLeft());
+            UnarySentence right = (UnarySentence)applyDistributivity(binarySentence.getRight());
             return new BinarySentence(left, binarySentence.getConnective(), right);
         }
         else if (sentence instanceof UnarySentence) {
@@ -486,8 +512,8 @@ public class KBDriver {
         Clauses result = new Clauses();
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
-            UnarySentence left = (UnarySentence)binary.getS1();
-            UnarySentence right = (UnarySentence)binary.getS2();
+            UnarySentence left = (UnarySentence)binary.getLeft();
+            UnarySentence right = (UnarySentence)binary.getRight();
 
             if (binary.getConnective() == BinaryConnective.AND) {
                 Clauses fromLeft = deriveClauses(left);

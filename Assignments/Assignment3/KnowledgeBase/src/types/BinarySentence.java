@@ -1,37 +1,66 @@
+/*
+ * Tanner Turba
+ * December 4, 2023
+ * CS 552 - Artificial Intelligence - Assignment 3
+ * 
+ * This is a specialized class that represents a Unary Sentence, 
+ * which is a type of Sentence and can be represented by the following: 
+ * BinarySentence ::= UnarySentence ^ UnarySentence
+ *                  | UnarySentence v UnarySentence
+ *                  | UnarySentence => UnarySentence
+ *                  | UnarySentence <=> UnarySentence
+ */
 package types;
 
-/* BinarySentence ::= UnarySentence ^ UnarySentence
-                    | UnarySentence v UnarySentence
-                    | UnarySentence => UnarySentence
-                    | UnarySentence <=> UnarySentence */
 public class BinarySentence extends Sentence {
-    private UnarySentence s1;
+    private UnarySentence left;
     private BinaryConnective connector;
-    private UnarySentence s2;
+    private UnarySentence right;
 
-    public BinarySentence(UnarySentence s1, BinaryConnective connector, UnarySentence s2) {
+    /**
+     * Creates a BinarySentence
+     * @param left the left UnarySentence in the BinarySentence
+     * @param connector the BinaryConnective to use
+     * @param right the right UnarySentence in the BinarySentence
+     */
+    public BinarySentence(UnarySentence left, BinaryConnective connector, UnarySentence right) {
         super();
-        this.s1 = s1;
+        this.left = left;
         this.connector = connector;
-        this.s2 = s2;
-        super.symbol = new Symbol(String.format("%s %s %s", s1.toString(), connector.toString(), s2.toString()), false);
+        this.right = right;
+        super.symbol = new Symbol(String.format("%s %s %s", left.toString(), connector.toString(), right.toString()), false);
     }
 
-    public UnarySentence getS1() {
-        return s1;
+    /**
+     * Get the left UnarySentence
+     * @return the left UnarySentence
+     */
+    public UnarySentence getLeft() {
+        return left;
     }
 
+    /**
+     * Gets the BinaryConnective
+     * @return the BinaryConnective
+     */
     public BinaryConnective getConnective() {
         return connector;
     }
     
-    public UnarySentence getS2() {
-        return s2;
+    /**
+     * Get the right UnarySentence
+     * @returnthe right UnarySentence
+     */
+    public UnarySentence getRight() {
+        return right;
     }
     
+    /**
+     * Prints the parsing of this UnarySentence
+     */
     public void parse(String prefix, int indent) {
         System.out.printf("%s: [%s] Binary [%s]\n".indent(indent), prefix, this.toString(), this.getConnective().toString());
-        s1.parse("LHS", indent);
-        s2.parse("RHS", indent);
+        left.parse("LHS", indent);
+        right.parse("RHS", indent);
     }
 }
