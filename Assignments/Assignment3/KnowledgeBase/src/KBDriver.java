@@ -144,15 +144,17 @@ public class KBDriver {
     }
 
     /**
-     * 
-     * @param kB
-     * @param alpha
-     * @param isProof
+     * Determines if the knowledge base entails alpha
+     * @param kB the knowledge base
+     * @param alpha the sentence to check for
+     * @param isProof true if finding a proof
      * @return
      */
     public boolean PlResolution(Clauses kB, Sentence alpha, boolean isProof) {
         Clauses premises = new Clauses();
         Clauses negatedGoal = new Clauses();
+
+        // Find the clauses from the negated goal by converting to CNF and deriving clauses
         Sentence negAlpha = new UnarySentence(new UnarySentence(alpha));
         negAlpha = convertToCNF(negAlpha);
         Clauses fromNegAlpha = deriveClauses(negAlpha);
@@ -160,18 +162,22 @@ public class KBDriver {
             negatedGoal.add(c);
         }
 
+        // Create a set of all clauses from the KB and from the negated goal
         Clauses clauses = new Clauses(kB);
         for (Clause c : clauses) {
             premises.add(c);
         }
         clauses.addAll(fromNegAlpha);
         clauses.sort();
+
         Clauses derived = new Clauses();
         while (true) {
-            // beginning round
+            // for all pair of clauses, find their resolvents by resolving complementary literals
             for (int c1 = 0; c1 < clauses.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < clauses.size(); c2++) {
-                    Clauses resolvents = PlResolve(clauses, clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, derived);
+                    Clauses resolvents = PlResolve(clauses.get(c1).getCopy(), clauses.get(c2).getCopy(), isProof, derived);
+
+                    // if resolvents contains {}, then print the proof(if necessary) and return true
                     if (resolvents.contains(Clause.EMPTY)) {
                         if (isProof) {
                             Clause solution = resolvents.get(resolvents.indexOf(Clause.EMPTY));
@@ -180,9 +186,12 @@ public class KBDriver {
                         }
                         return true;
                     }
+                
+                    // otherwise, add all resolvents to the set of derived clauses and repeat
                     derived.addAll(resolvents);
                 }
             }
+            // Return false the original set of clauses contains the derived clauses
             if (clauses.contains(derived)) {
                 return false;
             }
@@ -192,7 +201,16 @@ public class KBDriver {
         }
     }
 
-    private Clauses PlResolve(Clauses clauses, Clause c1, Clause c2, boolean isProof, Clauses derived) {
+    /**
+     * Create resolvents by resolving complementary literals
+     * @param c1 clause 1
+     * @param c2 clause 2
+     * @param isProof true, if generating a proof
+     * @param derived the set of already derived clauses from previoys resolves
+     * @return the set of clauses that are generated
+     */
+    private Clauses PlResolve(Clause c1, Clause c2, boolean isProof, Clauses derived) {
+        // Find the larger set and smaller Clause
         Clause small, big;
         Clauses result = new Clauses();
         if (c1.size() <= c2.size()) {
@@ -204,46 +222,12 @@ public class KBDriver {
             big = c1;
         }
 
-        Sentence negated;
-        if (small.size() == 1) {
-            if (small.get(0).isNegated()) {
-                negated = new UnarySentence(new UnarySentence(new Symbol(small.get(0).getValue(), false)));
-            }
-            else {
-                negated = new UnarySentence(small.get(0));
-            }
-        }
-        else {
-            UnarySentence left, right;
-            if (small.get(0).isNegated()) {
-                left = new UnarySentence(new UnarySentence(new Symbol(small.get(0).getValue(), false)));
-            }
-            else {
-                left = new UnarySentence(small.get(0));
-            }
-            if (small.get(1).isNegated()) {
-                right = new UnarySentence(new UnarySentence(new Symbol(small.get(1).getValue(), false)));
-            }
-            else {
-                right = new UnarySentence(small.get(1));
-            }
+        // get clauses from negated clause
+        Clauses fromNeg = negateClause(small);
 
-            BinarySentence b = new BinarySentence(left, BinaryConnective.OR, right);
-            for (int i = 2; i < small.size(); i++) {
-                if (small.get(2).isNegated()) {
-                    right = new UnarySentence(new UnarySentence(new Symbol(small.get(i).getValue(), false)));
-                }
-                else {
-                    right = new UnarySentence(small.get(i));
-                }
-                b = new BinarySentence(new UnarySentence(b), BinaryConnective.OR, right);
-            }
-            negated = b;
-        }
-        negated = new UnarySentence(new UnarySentence(negated));
-        negated = convertToCNF(negated);
-        Clauses fromNeg = deriveClauses(negated);
+        // If there is a complementary literal in 'fromNeg' inside 'big'
         if (big.containsComplementaryLiterals(fromNeg)) {
+            // Create resolvent and set necessary references for later use in the proof
             Clause resolvent = big.getCopy();
             resolvent.removeComplementaryLiterals(fromNeg);
             if (!derived.contains(resolvent)) {
@@ -266,19 +250,83 @@ public class KBDriver {
         return result.factor();
     }
 
+    /**
+     * Negate a clause
+     * @param c the clause to negate
+     * @return a set of Clauses that result from negating the clause
+     */
+    private Clauses negateClause(Clause c) {
+        // Wrap Symbols of clauses in Unary or Binary Sentences
+        Sentence negated;
+        if (c.size() == 1) {
+            if (c.get(0).isNegated()) {
+                negated = new UnarySentence(new UnarySentence(new Symbol(c.get(0).getValue(), false)));
+            }
+            else {
+                negated = new UnarySentence(c.get(0));
+            }
+        }
+        else {
+            UnarySentence left, right;
+            if (c.get(0).isNegated()) {
+                left = new UnarySentence(new UnarySentence(new Symbol(c.get(0).getValue(), false)));
+            }
+            else {
+                left = new UnarySentence(c.get(0));
+            }
+            if (c.get(1).isNegated()) {
+                right = new UnarySentence(new UnarySentence(new Symbol(c.get(1).getValue(), false)));
+            }
+            else {
+                right = new UnarySentence(c.get(1));
+            }
+
+            BinarySentence b = new BinarySentence(left, BinaryConnective.OR, right);
+            for (int i = 2; i < c.size(); i++) {
+                if (c.get(2).isNegated()) {
+                    right = new UnarySentence(new UnarySentence(new Symbol(c.get(i).getValue(), false)));
+                }
+                else {
+                    right = new UnarySentence(c.get(i));
+                }
+                b = new BinarySentence(new UnarySentence(b), BinaryConnective.OR, right);
+            }
+            negated = b;
+        }
+
+        // Wrap generated sentence in ~(...) and convert to CNF before returning
+        negated = new UnarySentence(new UnarySentence(negated));
+        negated = convertToCNF(negated);
+        return deriveClauses(negated);
+    }
+
+    /**
+     * Convert the sentence to CNF form
+     * @param sentence the sentence to convert
+     * @return a CNF compliant sentence
+     */
     public Sentence convertToCNF(Sentence sentence) {
         Sentence result = eliminateIff(sentence);
         result = eliminateIf(result);
-        result = eliminateNOT(result, false);
+        result = eliminateNot(result, false);
         result = applyDistributivity(result);
         return result;
     }
 
+    /**
+     * Eliminate all biconditionals from sentence
+     * @param sentence the sentence to modify
+     * @return the new sentence
+     */
     private Sentence eliminateIff(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
+
+            // Recurse to eliminate the biconditional in nested sentences
             UnarySentence u1 = (UnarySentence)eliminateIff(binarySentence.getLeft());
             UnarySentence u2 = (UnarySentence)eliminateIff(binarySentence.getRight());
+
+            // If a biconditional, reformulate to equivalent sentence before returning
             if (binarySentence.getConnective() == BinaryConnective.IFF) {
                 BinarySentence s1 = new BinarySentence(u1, BinaryConnective.IF, u2);
                 BinarySentence s2 = new BinarySentence(u2, BinaryConnective.IF, u1);
@@ -286,10 +334,14 @@ public class KBDriver {
                 UnarySentence right = new UnarySentence(s2);
                 return new BinarySentence(left, BinaryConnective.AND, right);
             }
+
+            // otherwise return new sentence with reformulated left and right
             return new BinarySentence(u1, binarySentence.getConnective(), u2);
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
+
+            // eliminate biconditional in nested sentence or nested unary 
             if (unary.nestedSentence != null) {
                 unary.setNestedSentence(eliminateIff(unary.nestedSentence));
                 return unary;
@@ -302,20 +354,33 @@ public class KBDriver {
         return sentence;
     }
 
+    /**
+     * Eliminate the conditional from a specified sentence
+     * @param sentence the Sentence to eliminate the conditional from
+     * @return a sentence not containing the conditional
+     */
     private Sentence eliminateIf(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
+
+            // Recurse to eliminate the conditional in nested sentences
             UnarySentence u1 = (UnarySentence)eliminateIf(binarySentence.getLeft());
             UnarySentence right = (UnarySentence)eliminateIf(binarySentence.getRight());
+
+            // If a conditional, reformulate to equivalent sentence before returning
             BinaryConnective connective = binarySentence.getConnective();
             if (binarySentence.getConnective() == BinaryConnective.IF) {
                 UnarySentence left = new UnarySentence(u1);
                 return new BinarySentence(left, BinaryConnective.OR, right);
             }
+
+            // otherwise return new sentence with reformulated left and right
             return new BinarySentence(u1, connective, right);
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
+
+            // eliminate conditional in nested sentence or nested unary 
             if (unary.nestedSentence != null) {
                 unary.setNestedSentence(eliminateIf(unary.nestedSentence));
                 return unary;
@@ -328,63 +393,84 @@ public class KBDriver {
         return sentence;
     }
 
-    private Sentence eliminateNOT(Sentence sentence, boolean outterIsNegated) {
+    /**
+     * Eliminate the logical Not from a Sentence
+     * @param sentence the Sentence to eliminate Not from 
+     * @param outterIsNegated
+     * @return
+     */
+    private Sentence eliminateNot(Sentence sentence, boolean outterIsNegated) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
             boolean leftIsNegated = binarySentence.getLeft().isNegated;
             boolean rightIsNegated = binarySentence.getRight().isNegated;
+
+            // Negate current sentence if nested in a negated Unary
             if (outterIsNegated) {
                 binarySentence = (BinarySentence)negate(binarySentence);
             }
 
-            UnarySentence left = (UnarySentence)eliminateNOT(binarySentence.getLeft(), leftIsNegated && !binarySentence.getLeft().isLiteral());
-            UnarySentence right = (UnarySentence)eliminateNOT(binarySentence.getRight(), rightIsNegated && !binarySentence.getRight().isLiteral());
+            // Recurse to eliminate the conditional in nested sentences
+            UnarySentence left = (UnarySentence)eliminateNot(binarySentence.getLeft(), leftIsNegated && !binarySentence.getLeft().isLiteral());
+            UnarySentence right = (UnarySentence)eliminateNot(binarySentence.getRight(), rightIsNegated && !binarySentence.getRight().isLiteral());
             return new BinarySentence(left, binarySentence.getConnective(), right);
         }
         else {
             UnarySentence unarySentence = (UnarySentence)sentence;
             boolean shouldNegate = unarySentence.isNegated;
-            if (outterIsNegated && !(unarySentence.isSymbol() || unarySentence.isLiteral())) {
+            // If nested in a negated sentence (i.e ~(...)), and is not a literal
+            if (outterIsNegated && !unarySentence.isLiteral()) {
+                // If nested sentence is a BinarySentence
                 if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof BinarySentence) {
                     return new UnarySentence((BinarySentence)negate(unarySentence.nestedSentence));
                 }
+                // If nested sentence is a UnarySentence
                 else if (unarySentence.nestedSentence != null && unarySentence.nestedSentence instanceof UnarySentence) {
                     return (UnarySentence)negate(unarySentence.nestedSentence);
                 }
-                else if (unarySentence.nestedUnary != null) {
-                    return new UnarySentence(negate(unarySentence.nestedUnary.nestedSentence));
-                }
+                // Otherwise is a nested UnarySentence, so negate
                 else {
                     return (UnarySentence)negate(unarySentence);
                 }
             }
+            // If nested in a sentence and is a literal or symbol
             else if (outterIsNegated && (unarySentence.isSymbol() || unarySentence.isLiteral())) {
                 return negate(unarySentence);
             }
             
+            // If not nested in a negated sentence...
             if (unarySentence.isSymbol() || unarySentence.isLiteral()) {
                 // a || ~a
                 return unarySentence.getLiteralValue();
             }
             else if (unarySentence.nestedUnary != null) {
                 // ~(a)
-                return eliminateNOT(unarySentence.nestedUnary, shouldNegate);
+                return eliminateNot(unarySentence.nestedUnary, shouldNegate);
             }
             else {
                 // (a)
-                return new UnarySentence(eliminateNOT(unarySentence.nestedSentence, shouldNegate));
+                return new UnarySentence(eliminateNot(unarySentence.nestedSentence, shouldNegate));
             }
         }
     }
 
+    /**
+     * Negates a Sentence
+     * @param sentence the Sentence to negate
+     * @return a negated version of the Sentence
+     */
     public Sentence negate(Sentence sentence) { 
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
+
+            // Negate and switch signs
             if (binary.getConnective() == BinaryConnective.AND) {
-                return new BinarySentence((UnarySentence)eliminateNOT(binary.getLeft(), true), BinaryConnective.OR, (UnarySentence)eliminateNOT(binary.getRight(), true));
+                return new BinarySentence((UnarySentence)negate(binary.getLeft()), BinaryConnective.OR, (UnarySentence)negate(binary.getRight()));
+                // return new BinarySentence((UnarySentence)eliminateNot(binary.getLeft(), true), BinaryConnective.OR, (UnarySentence)eliminateNot(binary.getRight(), true));
             }
             else {
-                return new BinarySentence((UnarySentence)eliminateNOT(binary.getLeft(), true), BinaryConnective.AND, (UnarySentence)eliminateNOT(binary.getRight(), true));
+                return new BinarySentence((UnarySentence)negate(binary.getLeft()), BinaryConnective.AND, (UnarySentence)negate(binary.getRight()));
+                // return new BinarySentence((UnarySentence)eliminateNot(binary.getLeft(), true), BinaryConnective.AND, (UnarySentence)eliminateNot(binary.getRight(), true));
             }
         }
         else {
@@ -411,6 +497,11 @@ public class KBDriver {
         
     }
 
+    /**
+     * Distributes the associativity where needed 
+     * @param sentence The Sentence to apply to
+     * @return A Sentence 
+     */
     private Sentence applyDistributivity(Sentence sentence) {
         if (sentence instanceof BinarySentence) {
             BinarySentence binarySentence = (BinarySentence)sentence;
@@ -418,6 +509,7 @@ public class KBDriver {
             UnarySentence s2 = binarySentence.getRight();
             UnarySentence a = null, b = null, c = null, d = null;
 
+            // Get all four parts of a BinarySentence, if they exist
             if (s1.nestedSentence != null && s1.nestedSentence instanceof BinarySentence) {
                 //(a ^ b) v c 
                 a = (UnarySentence)applyDistributivity(((BinarySentence)s1.nestedSentence).getLeft());
@@ -428,7 +520,6 @@ public class KBDriver {
                 a = (UnarySentence)applyDistributivity(s1);
                 b = null;
             }
-
             if (s2.nestedSentence != null && s2.nestedSentence instanceof BinarySentence) {
                 // a v (c ^ d)
                 c = (UnarySentence)applyDistributivity(((BinarySentence)s2.nestedSentence).getLeft());
@@ -439,6 +530,7 @@ public class KBDriver {
                 c = (UnarySentence)applyDistributivity(s2);
                 d = null;
             }
+
             if (binarySentence.getConnective() == BinaryConnective.OR) {
 
                 if (a != null && b != null && c != null && d != null && ((BinarySentence)s1.nestedSentence).getConnective() == BinaryConnective.OR && ((BinarySentence)s2.nestedSentence).getConnective() == BinaryConnective.AND) {
@@ -494,12 +586,15 @@ public class KBDriver {
                     return binarySentence;
                 }
             }
+
+            // Reform Sentence
             UnarySentence left = (UnarySentence)applyDistributivity(binarySentence.getLeft());
             UnarySentence right = (UnarySentence)applyDistributivity(binarySentence.getRight());
             return new BinarySentence(left, binarySentence.getConnective(), right);
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
+            // Apply to nested Sentence and set
             if (unary.nestedSentence != null) {
                 unary.setNestedSentence(applyDistributivity(unary.nestedSentence));
                 return unary;
@@ -508,16 +603,22 @@ public class KBDriver {
         return sentence;
     }
 
+    /**
+     * Pull Clauses from a Sentence that contains many clauses
+     * @param sentence the Sentence containing Clauses
+     * @return a set of Clauses
+     */
     private Clauses deriveClauses(Sentence sentence) {
         Clauses result = new Clauses();
         if (sentence instanceof BinarySentence) {
             BinarySentence binary = (BinarySentence)sentence;
             UnarySentence left = (UnarySentence)binary.getLeft();
             UnarySentence right = (UnarySentence)binary.getRight();
+            Clauses fromLeft = deriveClauses(left);
+            Clauses fromRight = deriveClauses(right);
 
+            // Add Clauses from left and right and add them to the set separately
             if (binary.getConnective() == BinaryConnective.AND) {
-                Clauses fromLeft = deriveClauses(left);
-                Clauses fromRight = deriveClauses(right);
                 if (fromLeft.size() != 0) {
                     result.addAll(fromLeft);
                 }
@@ -527,8 +628,7 @@ public class KBDriver {
                 return result;
             }
             else {
-                Clauses fromLeft = deriveClauses(left);
-                Clauses fromRight = deriveClauses(right);
+                // Create a disjunction of all clauses, and add to set of Clauses
                 Clause disjunction = new Clause();
                 for (Clause c : fromLeft) {
                     disjunction.addAll(c);
@@ -536,15 +636,17 @@ public class KBDriver {
                 for (Clause c : fromRight) {
                     disjunction.addAll(c);
                 }
-                return new Clauses(disjunction);
+                return new Clauses(disjunction).factor();
             }
         }
         else if (sentence instanceof UnarySentence) {
             UnarySentence unary = (UnarySentence)sentence;
             if (unary.nestedSentence != null) {
+                // Recurse to the nested sentence level.
                 return deriveClauses(unary.nestedSentence);
             }
             if (unary.isLiteral()) {
+                // Return the literal value
                 result.add(new Clause(unary));
             }
         }
