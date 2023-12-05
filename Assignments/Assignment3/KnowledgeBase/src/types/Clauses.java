@@ -72,6 +72,15 @@ public class Clauses extends ArrayList<Clause> {
     }
 
     /**
+     * Prints the Clauses 
+     */
+    public void print() {
+        for (Clause c : this) {
+            System.out.print(c);
+        }
+    }
+
+    /**
      * Determines if this set of Clauses contains a Clause
      * @param c the specified Clause
      * @return true if contains the Clause

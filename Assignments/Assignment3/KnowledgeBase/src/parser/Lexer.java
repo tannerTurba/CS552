@@ -134,6 +134,7 @@ public class Lexer {
 						ch = nextChar();
 						return Token.orTok;
 					case '=':
+						ch = nextChar();
 						if (ch != '>') 
 							error("Illegal character, expecting =");
 						ch = nextChar();

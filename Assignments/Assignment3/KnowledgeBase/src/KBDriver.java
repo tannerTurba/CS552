@@ -24,12 +24,15 @@ public class KBDriver {
             fileName = null;
         }
         
-        // Create parser
+        // Create lexer and parser
+        Lexer lexer;
         Parser parser;
         if (fileName != null) {
-            parser = new Parser(new Lexer(fileName));
+            lexer = new Lexer(fileName);
+            parser = new Parser(lexer);
         }
         else {
+            lexer = new Lexer(fileName);
             parser = new Parser(new Lexer());
             System.out.println("Welcome to the Knowledge Base!");
             System.out.println("Please TELL or ASK me anything!");
@@ -59,7 +62,9 @@ public class KBDriver {
                 kB.add(clause);
             }
             else if (cmd.equalsIgnoreCase("print")) {
-                System.out.println(kB);
+                System.out.println();
+                lexer.setSpaceDelimited(true);
+                kB.print();
             }
             else if (cmd.equalsIgnoreCase("eof")) {
                 break;
@@ -123,10 +128,15 @@ public class KBDriver {
                 sentence.parse();;
             }
             else if (cmd.equalsIgnoreCase("exit") || cmd.equalsIgnoreCase("done") || cmd.equalsIgnoreCase("quit")) {
-                System.out.println("Thank you for using the Knowledge Base!");
+                System.out.println();
+                if (fileName == null) {
+                    System.out.println("Thank you for using the Knowledge Base!");
+                }
                 break;
             }
             else if (cmd.equalsIgnoreCase("help")) {
+                System.out.println();
+                lexer.setSpaceDelimited(true);
                 String help = """
                         * DONE, EXIT, QUIT  : Terminates the session.
                         * TELLC <clause>    : Adds the given <clause> to the knowledge base.
